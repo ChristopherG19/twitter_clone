@@ -1,0 +1,126 @@
+{% extends 'twitter/layout.html' %}
+
+{% block content %}
+
+<body class="login-page">
+    <div class="twitter-login-box">
+        <header>
+            <img src="https://static01.nyt.com/images/2014/08/10/magazine/10wmt/10wmt-jumbo-v4.jpg?quality=90&auto=webp"
+                alt="twitter logo">
+            <h1>Registrate en Twitter</h1>
+        </header>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-wrapper">
+                <span for="name-id">Nombre</span>
+                <input type='text' name='name' id='name-id'>
+            </div>
+            <div class="input-wrapper">
+                <span for="user-name-id">Username</span>
+                <input type='text' name='username' id='user-name-id'>
+            </div>
+            <div class="input-wrapper">
+                <span for="desc-id">Descripcion</span>
+                <input type='text' name='descripcion' id='desc-id'>
+            </div>
+            <span for="veri-id">Verificado</span>
+            <br>
+            <label class="switch">
+                <input type="checkbox" name="verificado" id="veri-id">
+                <span class="slider round"></span>
+            </label>
+            <div class="input-wrapper">
+                <span for="date-id">Fecha de nacimiento</span>
+                <input type="date" name="fecha" id="date-id">
+            </div>
+            <div class="input-wrapper">
+                <span for="email-id">Email</span>
+                <input type='text' name='email' id='email-id'>
+            </div>
+            <div class="input-wrapper">
+                <span for="password-id">Password</span>
+                <input type='text' name='password' id='password-id'>
+            </div>
+            <div class="input-wrapper">
+                <span for="password-con-id">Confirm Password</span>
+                <input type='text' name='passwordcon' id='password-con-id'>
+            </div>
+
+            {% if error_message %}
+            <p class="error-message">{{ error_message }}</p>
+            {% endif %}
+
+            <button class="twitter-btn">Registrarse</button>
+        </form>
+
+        <div class="footer">
+            <a href="{% url 'login' %}">¿Ya tienes una cuenta? Login</a>
+        </div>
+
+    </div>
+
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 24px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+
+    {% endblock content %}
