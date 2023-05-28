@@ -246,40 +246,52 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             cf=True if i%20 else False
     #             )
 
+    # # Publica (usuario -> tweet)
+    # random.seed(30)
+    # userA = [random.choice(userNames) for i in range(tweets.shape[0])]
+    # device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(tweets.shape[0])]
 
+    # for i in range(len(userA)):
+    #     with driver.session() as session:
+    #         query = (
+    #             "MATCH (a:Usuario), (b:Tweet) "
+    #             "WHERE a.Usuario = $userA AND b.TID = $tweetB "
+    #             "CREATE (a)-[r:Publica {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
+    #             "RETURN a, b "
+    #         )
 
-    # Publica (usuario -> tweet)
+    #         result = session.run(
+    #             query, 
+    #             userA = userA[i], 
+    #             tweetB = TIDs.loc[i, 0], 
+    #             device = device[i],
+    #             ubicacion = "USA"
+    #             )
+
+    # Reacciona (usuario -> tweet)
     random.seed(30)
-    userA = [random.choice(userNames) for i in range(tweets.shape[0])]
-    device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(tweets.shape[0])]
-
-
-    temp = []
-    for i in range(len(userA)):
-        print(TIDs.loc[i, 0])
-        temp.append(TIDs.loc[i, 0])
-
-    print(len(np.unique(temp)))
-
-
+    userA = [random.choice(userNames) for i in range(300)]
+    tweetB = [random.choice(TIDs[0]) for i in range(300)]
+    likes = [random.choice([True, False]) for i in range(300)]
+    shares = [True if not likes[i] else random.choice([True, False]) for i in range(300)]
+    
 
     for i in range(len(userA)):
-
         with driver.session() as session:
-
             query = (
                 "MATCH (a:Usuario), (b:Tweet) "
                 "WHERE a.Usuario = $userA AND b.TID = $tweetB "
-                "CREATE (a)-[r:Publica {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
+                "MERGE (a)-[r:Reacciona {Like:$like, Share:$share, Fecha:$fecha}]->(b) "
                 "RETURN a, b "
             )
 
             result = session.run(
                 query, 
                 userA = userA[i], 
-                tweetB = TIDs.loc[i, 0], 
-                device = device[i],
-                ubicacion = "USA"
+                tweetB = tweetB[i], 
+                like=likes[i], 
+                share=shares[i],
+                fecha = "2023-05-27"
                 )
 
 
