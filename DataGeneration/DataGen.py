@@ -2,6 +2,7 @@ import time
 import random
 import pandas as pd
 import numpy as np
+import math
 import logging
 from neo4j import GraphDatabase
 from neo4j.exceptions import Neo4jError
@@ -32,6 +33,10 @@ notifications = pd.read_csv("DataGeneration/MockData/NOTIFICATIONS.csv")
 print(notifications.head())
 multimedia = pd.read_csv("DataGeneration/MockData/MULTIMEDIA.csv")
 print(multimedia.head())
+tweets = pd.read_csv("DataGeneration/MockData/TWEETS.csv")
+print(tweets.head())
+
+tweetsIDs = [SSnowflake() for x in range(200)]
 
 N4J_uri = "neo4j+s://f818cdff.databases.neo4j.io:7687"
 N4J_user = "neo4j"
@@ -126,32 +131,70 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             visto = visto
     #         )
 
-    # Multimedia - tira un error al final, pero crea casi todos los nodos, así que hay que ignorar
-    for index, row in notifications.iterrows():
-        link = multimedia.loc[index, "link"]
-        alter = multimedia.loc[index, "alter"]
-        fechaSubida = multimedia.loc[index, "fechaSubida"]
-        size = multimedia.loc[index, "size"]
-        tipo = "Imagen"
-        activo = "true"
+    # # Multimedia - tira un error al final, pero crea casi todos los nodos, así que hay que ignorar
+    # for index, row in notifications.iterrows():
+    #     link = multimedia.loc[index, "link"]
+    #     alter = multimedia.loc[index, "alter"]
+    #     fechaSubida = multimedia.loc[index, "fechaSubida"]
+    #     size = multimedia.loc[index, "size"]
+    #     tipo = "Imagen"
+    #     activo = "true"
+
+    #     with driver.session() as session:
+    #         if type(alter) != float:
+    #             result = session.run(
+    #                 "MERGE (:Multimedia {Link:$link, AlterText:$alter, FechaSubida:$fechaSubida, Size:$size, Tipo:$tipo, Activo:$activo})",
+    #                 link = link,
+    #                 alter = alter, 
+    #                 fechaSubida = fechaSubida, 
+    #                 size = size, 
+    #                 tipo = tipo,
+    #                 activo = activo
+    #             )
+    #         else:
+    #             result = session.run(
+    #                 "MERGE (:Multimedia {Link:$link, FechaSubida:$fechaSubida, Size:$size, Tipo:$tipo, Activo:$activo})",
+    #                 link = link,
+    #                 fechaSubida = fechaSubida, 
+    #                 size = size, 
+    #                 tipo = tipo,
+    #                 activo = activo
+    #             )
+
+    # Tweet
+    for index, row in tweets.iterrows():
+        id = tweetsIDs[index]
+        text = tweets.loc[index, "text"]
+        link = ""
+        if (type(tweets.loc[index, "buzz"]) != float):
+            link = "www." + tweets.loc[index, "buzz"] + ".com"
+        views = tweets.loc[index, "views"]
+        visibility = tweets.loc[index, "visibility"]
+        contestar = tweets.loc[index, "quien_puede_responder"]
+        fecha = tweets.loc[index, "fecha"]
+        hora = tweets.loc[index, "hora"]
 
         with driver.session() as session:
-            if type(alter) != float:
+            if len(link) > 0:
                 result = session.run(
-                    "MERGE (:Multimedia {Link:$link, AlterText:$alter, FechaSubida:$fechaSubida, Size:$size, Tipo:$tipo, Activo:$activo})",
-                    link = link,
-                    alter = alter, 
-                    fechaSubida = fechaSubida, 
-                    size = size, 
-                    tipo = tipo,
-                    activo = activo
+                    "MERGE (:Tweet {TID:$id, Text:$text, Link:$link, Views:$views, Visibility:$visibility, Contestar:$contestar, Fecha:$fecha})",
+                    id=id, 
+                    text=text,
+                    link=link,
+                    views=views,
+                    visibility=visibility,
+                    contestar=contestar,
+                    fecha=fecha,
+                    hora=hora
                 )
             else:
                 result = session.run(
-                    "MERGE (:Multimedia {Link:$link, FechaSubida:$fechaSubida, Size:$size, Tipo:$tipo, Activo:$activo})",
-                    link = link,
-                    fechaSubida = fechaSubida, 
-                    size = size, 
-                    tipo = tipo,
-                    activo = activo
+                    "MERGE (:Tweet {TID:$id, Text:$text, Views:$views, Visibility:$visibility, Contestar:$contestar, Fecha:$fecha})",
+                    id=id, 
+                    text=text,
+                    views=views,
+                    visibility=visibility,
+                    contestar=contestar,
+                    fecha=fecha,
+                    hora=hora
                 )
