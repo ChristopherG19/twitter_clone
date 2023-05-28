@@ -1,16 +1,18 @@
 import time
+import datetime
 import random
 import pandas as pd
 import numpy as np
 import math
 import logging
 from neo4j import GraphDatabase
+import csv
 from neo4j.exceptions import Neo4jError
 
 # ID Generator 
 def SSnowflake():
 
-    Actualtime = time.time()*10000000
+    Actualtime = time.time()*100000
     End = random.randint(1000, 10000)
 
     concat = str("{:.0f}".format(Actualtime)) + str(End)
@@ -35,8 +37,21 @@ multimedia = pd.read_csv("DataGeneration/MockData/MULTIMEDIA.csv")
 print(multimedia.head())
 tweets = pd.read_csv("DataGeneration/MockData/TWEETS.csv")
 print(tweets.head())
+TIDs = pd.read_csv("DataGeneration/MockData/TID.csv", header=None)
+print(TIDs.head())
 
-tweetsIDs = [SSnowflake() for x in range(200)]
+# lists
+# tweetsIDs = [SSnowflake() for x in range(200)]
+# idCSV = ["{:.0f}".format(x) for x in tweetsIDs]
+# idCSV = np.array(idCSV).reshape((200, 1))
+userNames = [x for x in users["user"]]
+
+# # Guardar los Tweet IDS
+# file = "TID.csv"
+# with open(file, 'w', newline='') as f:
+#     for x in idCSV:
+#         writer = csv.writer(f)
+#         writer.writerow(x)
 
 N4J_uri = "neo4j+s://f818cdff.databases.neo4j.io:7687"
 N4J_user = "neo4j"
@@ -163,7 +178,7 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
 
     # Tweet
     for index, row in tweets.iterrows():
-        id = tweetsIDs[index]
+        id = TIDs.loc[index, 0]
         text = tweets.loc[index, "text"]
         link = ""
         if (type(tweets.loc[index, "buzz"]) != float):
@@ -198,3 +213,65 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
                     fecha=fecha,
                     hora=hora
                 )
+
+    # relaciones _______________________________________________________________
+
+    # # sigue (user -> user)
+    # random.seed(10)
+    # userA = [random.choice(userNames) for i in range(len(userNames))]
+    # random.seed(20)
+    # userB = [random.choice(userNames) for i in range(len(userNames))]
+
+    # for i in range(len(userA)):
+
+    #     if userA[i] == userB[i]:
+    #         # evita que las personas se sigana a sí mismas
+    #         continue
+
+    #     with driver.session() as session:
+
+    #         query = (
+    #             "MATCH (a:Usuario), (b:Usuario) "
+    #             "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+    #             "CREATE (a)-[r:Sigue {fecha:$fecha, closeFriend:$cf}]->(b) "
+    #             "RETURN a, b "
+    #         )
+
+    #         result = session.run(
+    #             query, 
+    #             userA = userA[i], 
+    #             userB = userB[i], 
+    #             fecha = "2023-05-27",
+    #             cf=True if i%20 else False
+    #             )
+
+    # Publica (usuario   -> tweet)
+    random.seed(30)
+    userA = [random.choice(userNames) for i in range(300)]
+    tweetB = [random.choice(TIDs[0]) for i in range(300)]
+    device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(300)]
+    
+    for x in tweetB:
+        print("{:.0f}".format(x))
+
+    # for i in range(len(userA)):
+
+    #     with driver.session() as session:
+
+    #         query = (
+    #             "MATCH (a:Usuario), (b:Tweet) "
+    #             "WHERE a.Usuario = '$userA' AND b.TID = '$tweetB' "
+    #             "CREATE (a)-[r:Publica {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
+    #             "RETURN a, b "
+    #         )
+
+    #         result = session.run(
+    #             query, 
+    #             userA = userA[i], 
+    #             tweetB = tweetB[i], 
+    #             device = device[i],
+    #             ubicacion = "USA"
+    #             )
+
+
+
