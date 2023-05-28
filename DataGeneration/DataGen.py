@@ -26,6 +26,8 @@ users = pd.read_csv("DataGeneration/MockData/USERS.csv")
 print(users.head())
 spaces = pd.read_csv("DataGeneration/MockData/SPACES.csv")
 print(spaces.head())
+hashtags = pd.read_csv("DataGeneration/MockData/HASHTAGS.csv")
+print(hashtags.head())
 
 N4J_uri = "neo4j+s://f818cdff.databases.neo4j.io:7687"
 N4J_user = "neo4j"
@@ -58,26 +60,49 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             verified = verified
     #         )
 
-    # Agrgar spaces
+    # # Agrgar spaces
+    # for index, row in spaces.iterrows():
+    #     categoria = spaces.loc[index, "categoria"]
+    #     ubicacion = spaces.loc[index, "ubicacion"]
+    #     horaProgramada = spaces.loc[index, "horaProgramada"]
+    #     horaFinalizada = spaces.loc[index, "horaFinalizada"]
+    #     titulo = spaces.loc[index, "titulo"]
+    #     desc = spaces.loc[index, "desc"]
+    #     multimedia = spaces.loc[index, "multimedia"]
+
+    #     with driver.session() as session:
+    #         result = session.run(
+    #             "CREATE (:Space {Categoria: $categoria, Ubicacion:$ubicacion, HoraProgramada: $horaProgramada, HoraFinalizada: $horaFinalizada, Titulo: $titulo, Desc: $desc, Multimedia:$multimedia})",
+    #             categoria = categoria, 
+    #             ubicacion = ubicacion, 
+    #             horaProgramada = horaProgramada, 
+    #             horaFinalizada = horaFinalizada, 
+    #             titulo = titulo, 
+    #             desc = desc, 
+    #             multimedia= multimedia
+    #         )
+
+    # Hashtags
     for index, row in spaces.iterrows():
-        categoria = spaces.loc[index, "categoria"]
-        ubicacion = spaces.loc[index, "ubicacion"]
-        horaProgramada = spaces.loc[index, "horaProgramada"]
-        horaFinalizada = spaces.loc[index, "horaFinalizada"]
-        titulo = spaces.loc[index, "titulo"]
-        desc = spaces.loc[index, "desc"]
-        multimedia = spaces.loc[index, "multimedia"]
+        nombre = hashtags.loc[index, "hashtag"]
+        categoria = hashtags.loc[index, "categoria"]
+        fechaCreacion = hashtags.loc[index, "fechaCreacion"]
+        trending = "false"
+        explored = "false"
+        cantidad_t = 0
+        vistas = 0
+
 
         with driver.session() as session:
             result = session.run(
-                "CREATE (:Space {Categoria: $categoria, Ubicacion:$ubicacion, HoraProgramada: $horaProgramada, HoraFinalizada: $horaFinalizada, Titulo: $titulo, Desc: $desc, Multimedia:$multimedia})",
+                "MERGE (:Hashtag {Nombre:$nombre, Categoria:$categoria, FechaCreacion:$fechaCreacion, Trending:$trending, Explored:$explored, Cantidad_t:$cantidad_t, Vistas:$vistas})",
+                nombre = nombre, 
                 categoria = categoria, 
-                ubicacion = ubicacion, 
-                horaProgramada = horaProgramada, 
-                horaFinalizada = horaFinalizada, 
-                titulo = titulo, 
-                desc = desc, 
-                multimedia= multimedia
+                fechaCreacion = fechaCreacion, 
+                trending = trending, 
+                explored = explored, 
+                cantidad_t = cantidad_t, 
+                vistas = vistas
             )
 
 
