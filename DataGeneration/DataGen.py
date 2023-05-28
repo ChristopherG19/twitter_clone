@@ -217,56 +217,56 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
 
     # relaciones _______________________________________________________________
 
-    # # sigue (user -> user)
-    # random.seed(10)
-    # userA = [random.choice(userNames) for i in range(len(userNames))]
-    # random.seed(20)
-    # userB = [random.choice(userNames) for i in range(len(userNames))]
+    # sigue (user -> user)
+    random.seed(10)
+    userA = [random.choice(userNames) for i in range(len(userNames))]
+    random.seed(20)
+    userB = [random.choice(userNames) for i in range(len(userNames))]
 
-    # for i in range(len(userA)):
+    for i in range(len(userA)):
 
-    #     if userA[i] == userB[i]:
-    #         # evita que las personas se sigana a sí mismas
-    #         continue
+        if userA[i] == userB[i]:
+            # evita que las personas se sigana a sí mismas
+            continue
 
-    #     with driver.session() as session:
+        with driver.session() as session:
 
-    #         query = (
-    #             "MATCH (a:Usuario), (b:Usuario) "
-    #             "WHERE a.Usuario = $userA AND b.Usuario = $userB "
-    #             "CREATE (a)-[r:Sigue {fecha:$fecha, closeFriend:$cf}]->(b) "
-    #             "RETURN a, b "
-    #         )
+            query = (
+                "MATCH (a:Usuario), (b:Usuario) "
+                "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+                "MERGE (a)-[r:Sigue {fecha:$fecha, closeFriend:$cf}]->(b) "
+                "RETURN a, b "
+            )
 
-    #         result = session.run(
-    #             query, 
-    #             userA = userA[i], 
-    #             userB = userB[i], 
-    #             fecha = "2023-05-27",
-    #             cf=True if i%20 else False
-    #             )
+            result = session.run(
+                query, 
+                userA = userA[i], 
+                userB = userB[i], 
+                fecha = "2023-05-27",
+                cf=True if i%20 else False
+                )
 
-    # # Publica (usuario -> tweet)
-    # random.seed(30)
-    # userA = [random.choice(userNames) for i in range(tweets.shape[0])]
-    # device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(tweets.shape[0])]
+    # Publica (usuario -> tweet)
+    random.seed(30)
+    userA = [random.choice(userNames) for i in range(tweets.shape[0])]
+    device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(tweets.shape[0])]
 
-    # for i in range(len(userA)):
-    #     with driver.session() as session:
-    #         query = (
-    #             "MATCH (a:Usuario), (b:Tweet) "
-    #             "WHERE a.Usuario = $userA AND b.TID = $tweetB "
-    #             "CREATE (a)-[r:Publica {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
-    #             "RETURN a, b "
-    #         )
+    for i in range(len(userA)):
+        with driver.session() as session:
+            query = (
+                "MATCH (a:Usuario), (b:Tweet) "
+                "WHERE a.Usuario = $userA AND b.TID = $tweetB "
+                "MERGE (a)-[r:Publica {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
+                "RETURN a, b "
+            )
 
-    #         result = session.run(
-    #             query, 
-    #             userA = userA[i], 
-    #             tweetB = TIDs.loc[i, 0], 
-    #             device = device[i],
-    #             ubicacion = "USA"
-    #             )
+            result = session.run(
+                query, 
+                userA = userA[i], 
+                tweetB = TIDs.loc[i, 0], 
+                device = device[i],
+                ubicacion = "USA"
+                )
 
     # Reacciona (usuario -> tweet)
     random.seed(30)
@@ -294,5 +294,25 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
                 fecha = "2023-05-27"
                 )
 
+    # Responde (tweet -> tweet)
+    random.seed(30)
+    tweetA = [random.choice(TIDs[0]) for i in range(70)]
+    tweetB = [random.choice(TIDs[0]) for i in range(70)]
+    device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(tweets.shape[0])]
 
+    for i in range(len(tweetA)):
+        with driver.session() as session:
+            query = (
+                "MATCH (a:Tweet), (b:Tweet) "
+                "WHERE a.TID = $tweetA AND b.TID = $tweetB "
+                "MERGE (a)-[r:Responde {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
+                "RETURN a, b "
+            )
 
+            result = session.run(
+                query, 
+                tweetA = tweetA[i], 
+                tweetB = tweetA[i], 
+                device = device[i],
+                ubicacion = "USA"
+                )
