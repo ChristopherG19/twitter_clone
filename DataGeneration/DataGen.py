@@ -28,6 +28,8 @@ spaces = pd.read_csv("DataGeneration/MockData/SPACES.csv")
 print(spaces.head())
 hashtags = pd.read_csv("DataGeneration/MockData/HASHTAGS.csv")
 print(hashtags.head())
+notifications = pd.read_csv("DataGeneration/MockData/NOTIFICATIONS.csv")
+print(notifications.head())
 
 N4J_uri = "neo4j+s://f818cdff.databases.neo4j.io:7687"
 N4J_user = "neo4j"
@@ -82,32 +84,44 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             multimedia= multimedia
     #         )
 
-    # Hashtags
-    for index, row in spaces.iterrows():
-        nombre = hashtags.loc[index, "hashtag"]
-        categoria = hashtags.loc[index, "categoria"]
-        fechaCreacion = hashtags.loc[index, "fechaCreacion"]
-        trending = "false"
-        explored = "false"
-        cantidad_t = 0
-        vistas = 0
+    # # Hashtags
+    # for index, row in spaces.iterrows():
+    #     nombre = hashtags.loc[index, "hashtag"]
+    #     categoria = hashtags.loc[index, "categoria"]
+    #     fechaCreacion = hashtags.loc[index, "fechaCreacion"]
+    #     trending = "false"
+    #     explored = "false"
+    #     cantidad_t = 0
+    #     vistas = 0
 
+    #     with driver.session() as session:
+    #         result = session.run(
+    #             "MERGE (:Hashtag {Nombre:$nombre, Categoria:$categoria, FechaCreacion:$fechaCreacion, Trending:$trending, Explored:$explored, Cantidad_t:$cantidad_t, Vistas:$vistas})",
+    #             nombre = nombre, 
+    #             categoria = categoria, 
+    #             fechaCreacion = fechaCreacion, 
+    #             trending = trending, 
+    #             explored = explored, 
+    #             cantidad_t = cantidad_t, 
+    #             vistas = vistas
+    #         )
+
+    # Notifications
+    for index, row in notifications.iterrows():
+        user = users.loc[random.randint(0, users.shape[1]), "user"]
+        fecha = notifications.loc[index, "fecha"]
+        hora = notifications.loc[index, "hora"]
+        tipo = notifications.loc[index, "tipo"]
+        trending = notifications.loc[index, "trending"]
+        visto = notifications.loc[index, "visto"]
 
         with driver.session() as session:
             result = session.run(
-                "MERGE (:Hashtag {Nombre:$nombre, Categoria:$categoria, FechaCreacion:$fechaCreacion, Trending:$trending, Explored:$explored, Cantidad_t:$cantidad_t, Vistas:$vistas})",
-                nombre = nombre, 
-                categoria = categoria, 
-                fechaCreacion = fechaCreacion, 
+                "MERGE (:Notification {UserMencionado:$user, Fecha:$fecha, Hora:$hora, Tipo:$tipo, Trending:$trending, Visto:$visto})",
+                user = user, 
+                fecha = fecha, 
+                hora = hora, 
+                tipo = tipo, 
                 trending = trending, 
-                explored = explored, 
-                cantidad_t = cantidad_t, 
-                vistas = vistas
+                visto = visto
             )
-
-
-        
-
-
-
-    
