@@ -4,7 +4,6 @@ import random
 import pandas as pd
 import numpy as np
 import math
-import logging
 from neo4j import GraphDatabase
 import csv
 from neo4j.exceptions import Neo4jError
@@ -13,9 +12,11 @@ from neo4j.exceptions import Neo4jError
 def SSnowflake():
 
     Actualtime = time.time()*100000
-    End = random.randint(1000, 10000)
+    End = random.randint(100000, 1000000)
 
     concat = str("{:.0f}".format(Actualtime)) + str(End)
+
+    time.sleep(0.1)
 
     return float(concat)
 
@@ -176,43 +177,43 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #                 activo = activo
     #             )
 
-    # Tweet
-    for index, row in tweets.iterrows():
-        id = TIDs.loc[index, 0]
-        text = tweets.loc[index, "text"]
-        link = ""
-        if (type(tweets.loc[index, "buzz"]) != float):
-            link = "www." + tweets.loc[index, "buzz"] + ".com"
-        views = tweets.loc[index, "views"]
-        visibility = tweets.loc[index, "visibility"]
-        contestar = tweets.loc[index, "quien_puede_responder"]
-        fecha = tweets.loc[index, "fecha"]
-        hora = tweets.loc[index, "hora"]
+    # # Tweet
+    # for index, row in tweets.iterrows():
+    #     id = TIDs.loc[index, 0]
+    #     text = tweets.loc[index, "text"]
+    #     link = ""
+    #     if (type(tweets.loc[index, "buzz"]) != float):
+    #         link = "www." + tweets.loc[index, "buzz"] + ".com"
+    #     views = tweets.loc[index, "views"]
+    #     visibility = tweets.loc[index, "visibility"]
+    #     contestar = tweets.loc[index, "quien_puede_responder"]
+    #     fecha = tweets.loc[index, "fecha"]
+    #     hora = tweets.loc[index, "hora"]
 
-        with driver.session() as session:
-            if len(link) > 0:
-                result = session.run(
-                    "MERGE (:Tweet {TID:$id, Text:$text, Link:$link, Views:$views, Visibility:$visibility, Contestar:$contestar, Fecha:$fecha})",
-                    id=id, 
-                    text=text,
-                    link=link,
-                    views=views,
-                    visibility=visibility,
-                    contestar=contestar,
-                    fecha=fecha,
-                    hora=hora
-                )
-            else:
-                result = session.run(
-                    "MERGE (:Tweet {TID:$id, Text:$text, Views:$views, Visibility:$visibility, Contestar:$contestar, Fecha:$fecha})",
-                    id=id, 
-                    text=text,
-                    views=views,
-                    visibility=visibility,
-                    contestar=contestar,
-                    fecha=fecha,
-                    hora=hora
-                )
+    #     with driver.session() as session:
+    #         if len(link) > 0:
+    #             result = session.run(
+    #                 "MERGE (:Tweet {TID:$id, Text:$text, Link:$link, Views:$views, Visibility:$visibility, Contestar:$contestar, Fecha:$fecha})",
+    #                 id=id, 
+    #                 text=text,
+    #                 link=link,
+    #                 views=views,
+    #                 visibility=visibility,
+    #                 contestar=contestar,
+    #                 fecha=fecha,
+    #                 hora=hora
+    #             )
+    #         else:
+    #             result = session.run(
+    #                 "MERGE (:Tweet {TID:$id, Text:$text, Views:$views, Visibility:$visibility, Contestar:$contestar, Fecha:$fecha})",
+    #                 id=id, 
+    #                 text=text,
+    #                 views=views,
+    #                 visibility=visibility,
+    #                 contestar=contestar,
+    #                 fecha=fecha,
+    #                 hora=hora
+    #             )
 
     # relaciones _______________________________________________________________
 
@@ -245,33 +246,41 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             cf=True if i%20 else False
     #             )
 
-    # Publica (usuario   -> tweet)
+
+
+    # Publica (usuario -> tweet)
     random.seed(30)
-    userA = [random.choice(userNames) for i in range(300)]
-    tweetB = [random.choice(TIDs[0]) for i in range(300)]
-    device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(300)]
-    
-    for x in tweetB:
-        print("{:.0f}".format(x))
+    userA = [random.choice(userNames) for i in range(tweets.shape[0])]
+    device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(tweets.shape[0])]
 
-    # for i in range(len(userA)):
 
-    #     with driver.session() as session:
+    temp = []
+    for i in range(len(userA)):
+        print(TIDs.loc[i, 0])
+        temp.append(TIDs.loc[i, 0])
 
-    #         query = (
-    #             "MATCH (a:Usuario), (b:Tweet) "
-    #             "WHERE a.Usuario = '$userA' AND b.TID = '$tweetB' "
-    #             "CREATE (a)-[r:Publica {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
-    #             "RETURN a, b "
-    #         )
+    print(len(np.unique(temp)))
 
-    #         result = session.run(
-    #             query, 
-    #             userA = userA[i], 
-    #             tweetB = tweetB[i], 
-    #             device = device[i],
-    #             ubicacion = "USA"
-    #             )
+
+
+    for i in range(len(userA)):
+
+        with driver.session() as session:
+
+            query = (
+                "MATCH (a:Usuario), (b:Tweet) "
+                "WHERE a.Usuario = $userA AND b.TID = $tweetB "
+                "CREATE (a)-[r:Publica {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
+                "RETURN a, b "
+            )
+
+            result = session.run(
+                query, 
+                userA = userA[i], 
+                tweetB = TIDs.loc[i, 0], 
+                device = device[i],
+                ubicacion = "USA"
+                )
 
 
 
