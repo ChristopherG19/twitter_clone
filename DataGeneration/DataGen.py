@@ -30,6 +30,8 @@ hashtags = pd.read_csv("DataGeneration/MockData/HASHTAGS.csv")
 print(hashtags.head())
 notifications = pd.read_csv("DataGeneration/MockData/NOTIFICATIONS.csv")
 print(notifications.head())
+multimedia = pd.read_csv("DataGeneration/MockData/MULTIMEDIA.csv")
+print(multimedia.head())
 
 N4J_uri = "neo4j+s://f818cdff.databases.neo4j.io:7687"
 N4J_user = "neo4j"
@@ -47,8 +49,6 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #     fechaN = users.loc[index, "fecha nacimiento"]
     #     verified = users.loc[index, "verificado"]
     #     desc = users.loc[index, "desc"]
-
-    #     print(username, name, email, password, fechaN, desc)
 
     #     with driver.session() as session:
     #         result = session.run(
@@ -106,22 +106,52 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             vistas = vistas
     #         )
 
-    # Notifications
+    # # Notifications
+    # for index, row in notifications.iterrows():
+    #     user = users.loc[random.randint(0, users.shape[1]), "user"]
+    #     fecha = notifications.loc[index, "fecha"]
+    #     hora = notifications.loc[index, "hora"]
+    #     tipo = notifications.loc[index, "tipo"]
+    #     trending = notifications.loc[index, "trending"]
+    #     visto = notifications.loc[index, "visto"]
+
+    #     with driver.session() as session:
+    #         result = session.run(
+    #             "MERGE (:Notification {UserMencionado:$user, Fecha:$fecha, Hora:$hora, Tipo:$tipo, Trending:$trending, Visto:$visto})",
+    #             user = user, 
+    #             fecha = fecha, 
+    #             hora = hora, 
+    #             tipo = tipo, 
+    #             trending = trending, 
+    #             visto = visto
+    #         )
+
+    # Multimedia - tira un error al final, pero crea casi todos los nodos, así que hay que ignorar
     for index, row in notifications.iterrows():
-        user = users.loc[random.randint(0, users.shape[1]), "user"]
-        fecha = notifications.loc[index, "fecha"]
-        hora = notifications.loc[index, "hora"]
-        tipo = notifications.loc[index, "tipo"]
-        trending = notifications.loc[index, "trending"]
-        visto = notifications.loc[index, "visto"]
+        link = multimedia.loc[index, "link"]
+        alter = multimedia.loc[index, "alter"]
+        fechaSubida = multimedia.loc[index, "fechaSubida"]
+        size = multimedia.loc[index, "size"]
+        tipo = "Imagen"
+        activo = "true"
 
         with driver.session() as session:
-            result = session.run(
-                "MERGE (:Notification {UserMencionado:$user, Fecha:$fecha, Hora:$hora, Tipo:$tipo, Trending:$trending, Visto:$visto})",
-                user = user, 
-                fecha = fecha, 
-                hora = hora, 
-                tipo = tipo, 
-                trending = trending, 
-                visto = visto
-            )
+            if type(alter) != float:
+                result = session.run(
+                    "MERGE (:Multimedia {Link:$link, AlterText:$alter, FechaSubida:$fechaSubida, Size:$size, Tipo:$tipo, Activo:$activo})",
+                    link = link,
+                    alter = alter, 
+                    fechaSubida = fechaSubida, 
+                    size = size, 
+                    tipo = tipo,
+                    activo = activo
+                )
+            else:
+                result = session.run(
+                    "MERGE (:Multimedia {Link:$link, FechaSubida:$fechaSubida, Size:$size, Tipo:$tipo, Activo:$activo})",
+                    link = link,
+                    fechaSubida = fechaSubida, 
+                    size = size, 
+                    tipo = tipo,
+                    activo = activo
+                )
