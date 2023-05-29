@@ -505,26 +505,55 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             hashtagB = hashtags.loc[i, "hashtag"]
     #             )
 
-    # Crea (Usuario -> Espacio)
+    # # Crea (Usuario -> Espacio)
+    # SpaceIDs = []
+    # with driver.session() as session:
+    #     result = session.run("MATCH (n:Space) RETURN ID(n)")
+    #     SpaceIDs = [record["ID(n)"] for record in result]
+
+    # userA = [random.choice(userNames) for i in range(len(SpaceIDs))]
+
+    # for i in range(len(SpaceIDs)):
+    #     with driver.session() as session:
+    #         query = (
+    #             "MATCH (a), (b:Usuario) "
+    #             "WHERE ID(a) IN [$NID] AND b.Usuario = $userA "
+    #             "MERGE (a)<-[r:Crea {Fecha:$fecha} ]-(b) "
+    #             "RETURN a, b "
+    #         )
+
+    #         result = session.run(
+    #             query, 
+    #             NID = SpaceIDs[i], 
+    #             userA = userA[i], 
+    #             fecha = "2023-05-27"
+    #             )
+
+    # Interactua (Usuario -> Espacio)
+
     SpaceIDs = []
     with driver.session() as session:
         result = session.run("MATCH (n:Space) RETURN ID(n)")
         SpaceIDs = [record["ID(n)"] for record in result]
 
-    userA = [random.choice(userNames) for i in range(len(SpaceIDs))]
+    userA = [random.choice(userNames) for i in range(50)]
+    spaceB = [random.choice(SpaceIDs) for i in range(50)]
 
     for i in range(len(SpaceIDs)):
         with driver.session() as session:
             query = (
                 "MATCH (a), (b:Usuario) "
-                "WHERE ID(a) IN [$NID] AND b.Usuario = $userA "
-                "MERGE (a)<-[r:Crea {Fecha:$fecha} ]-(b) "
+                "WHERE ID(a) IN [$SID] AND b.Usuario = $userA "
+                "MERGE (a)<-[r:Interactua {Interaccion:$interaccion, HoraIngreso:$horaIngreso, HoraSalida:$horaSalida}]-(b) "
                 "RETURN a, b "
             )
 
             result = session.run(
                 query, 
-                NID = SpaceIDs[i], 
+                SID = SpaceIDs[i], 
                 userA = userA[i], 
-                fecha = "2023-05-27"
+                interaccion = True, 
+                horaIngreso = datetime.datetime.now(),
+                horaSalida = datetime.datetime.now()
                 )
+
