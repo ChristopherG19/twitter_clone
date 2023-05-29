@@ -319,106 +319,126 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             ubicacion = "USA"
     #             )
 
-    # Mensaje (Usuario -> Usuario)
-    random.seed(40)
-    userA = [random.choice(userNames) for i in range(messages.shape[0])]
-    userB = [random.choice(userNames) for i in range(messages.shape[0])]
+    # # Mensaje (Usuario -> Usuario)
+    # random.seed(40)
+    # userA = [random.choice(userNames) for i in range(messages.shape[0])]
+    # userB = [random.choice(userNames) for i in range(messages.shape[0])]
 
-    print(messages.shape[0])
+    # print(messages.shape[0])
 
-    for i in range(messages.shape[0]):
+    # for i in range(messages.shape[0]):
 
-        links = []
-        if (type(messages.loc[i, "buzz1"]) != float):
-            link1 = "www." + messages.loc[i, "buzz1"] + ".com"
-            links.append(link1)
+    #     links = []
+    #     if (type(messages.loc[i, "buzz1"]) != float):
+    #         link1 = "www." + messages.loc[i, "buzz1"] + ".com"
+    #         links.append(link1)
         
-        if (type(messages.loc[i, "buzz2"]) != float ):
-            link2 = "www." + messages.loc[i, "buzz2"] + ".com"
-            links.append(link2)
+    #     if (type(messages.loc[i, "buzz2"]) != float ):
+    #         link2 = "www." + messages.loc[i, "buzz2"] + ".com"
+    #         links.append(link2)
 
-        if (type(messages.loc[i, "buzz3"]) != float ):
-            link3 = "www." + messages.loc[i, "buzz3"] + ".com"
-            links.append(link3)
+    #     if (type(messages.loc[i, "buzz3"]) != float ):
+    #         link3 = "www." + messages.loc[i, "buzz3"] + ".com"
+    #         links.append(link3)
 
-        if (type(messages.loc[i, "contenido"]) != float):
-            if len(links) > 0:
+    #     if (type(messages.loc[i, "contenido"]) != float):
+    #         if len(links) > 0:
 
-                with driver.session() as session:
-                    query = (
-                        "MATCH (a:Usuario), (b:Usuario) "
-                        "WHERE a.Usuario = $userA AND b.Usuario = $userB "
-                        "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido, Links:$links}]->(b) "
-                        "RETURN a, b "
-                    )
+    #             with driver.session() as session:
+    #                 query = (
+    #                     "MATCH (a:Usuario), (b:Usuario) "
+    #                     "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+    #                     "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido, Links:$links}]->(b) "
+    #                     "RETURN a, b "
+    #                 )
 
-                    result = session.run(
-                        query, 
-                        userA = userA[i], 
-                        userB = userB[i], 
-                        text = messages.loc[i, "texto"],
-                        dia = messages.loc[i, "dia"],
-                        hora = messages.loc[i, "hora"],
-                        contenido = messages.loc[i, "contenido"], 
-                        links = links
-                        )
+    #                 result = session.run(
+    #                     query, 
+    #                     userA = userA[i], 
+    #                     userB = userB[i], 
+    #                     text = messages.loc[i, "texto"],
+    #                     dia = messages.loc[i, "dia"],
+    #                     hora = messages.loc[i, "hora"],
+    #                     contenido = messages.loc[i, "contenido"], 
+    #                     links = links
+    #                     )
                     
-            else: 
+    #         else: 
 
-                with driver.session() as session:
-                    query = (
-                        "MATCH (a:Usuario), (b:Usuario) "
-                        "WHERE a.Usuario = $userA AND b.Usuario = $userB "
-                        "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido}]->(b) "
-                        "RETURN a, b "
-                    )
+    #             with driver.session() as session:
+    #                 query = (
+    #                     "MATCH (a:Usuario), (b:Usuario) "
+    #                     "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+    #                     "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido}]->(b) "
+    #                     "RETURN a, b "
+    #                 )
 
-                    result = session.run(
-                        query, 
-                        userA = userA[i], 
-                        userB = userB[i], 
-                        text = messages.loc[i, "texto"],
-                        dia = messages.loc[i, "dia"],
-                        hora = messages.loc[i, "hora"],
-                        contenido = messages.loc[i, "contenido"]
-                        )
+    #                 result = session.run(
+    #                     query, 
+    #                     userA = userA[i], 
+    #                     userB = userB[i], 
+    #                     text = messages.loc[i, "texto"],
+    #                     dia = messages.loc[i, "dia"],
+    #                     hora = messages.loc[i, "hora"],
+    #                     contenido = messages.loc[i, "contenido"]
+    #                     )
                     
-        else:
-            if len(links) > 0:
+    #     else:
+    #         if len(links) > 0:
 
-                with driver.session() as session:
-                    query = (
-                        "MATCH (a:Usuario), (b:Usuario) "
-                        "WHERE a.Usuario = $userA AND b.Usuario = $userB "
-                        "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Links:$links}]->(b) "
-                        "RETURN a, b "
-                    )
+    #             with driver.session() as session:
+    #                 query = (
+    #                     "MATCH (a:Usuario), (b:Usuario) "
+    #                     "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+    #                     "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Links:$links}]->(b) "
+    #                     "RETURN a, b "
+    #                 )
 
-                    result = session.run(
-                        query, 
-                        userA = userA[i], 
-                        userB = userB[i], 
-                        text = messages.loc[i, "texto"],
-                        dia = messages.loc[i, "dia"],
-                        hora = messages.loc[i, "hora"],
-                        links = links
-                        )
+    #                 result = session.run(
+    #                     query, 
+    #                     userA = userA[i], 
+    #                     userB = userB[i], 
+    #                     text = messages.loc[i, "texto"],
+    #                     dia = messages.loc[i, "dia"],
+    #                     hora = messages.loc[i, "hora"],
+    #                     links = links
+    #                     )
                     
-            else: 
+    #         else: 
 
-                with driver.session() as session:
-                    query = (
-                        "MATCH (a:Usuario), (b:Usuario) "
-                        "WHERE a.Usuario = $userA AND b.Usuario = $userB "
-                        "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora}]->(b) "
-                        "RETURN a, b "
-                    )
+    #             with driver.session() as session:
+    #                 query = (
+    #                     "MATCH (a:Usuario), (b:Usuario) "
+    #                     "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+    #                     "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora}]->(b) "
+    #                     "RETURN a, b "
+    #                 )
 
-                    result = session.run(
-                        query, 
-                        userA = userA[i], 
-                        userB = userB[i], 
-                        text = messages.loc[i, "texto"],
-                        dia = messages.loc[i, "dia"],
-                        hora = messages.loc[i, "hora"],
-                        )
+    #                 result = session.run(
+    #                     query, 
+    #                     userA = userA[i], 
+    #                     userB = userB[i], 
+    #                     text = messages.loc[i, "texto"],
+    #                     dia = messages.loc[i, "dia"],
+    #                     hora = messages.loc[i, "hora"],
+    #                     )
+
+    # Contiene (tweet -> multimedia)
+    random.seed(30)
+    tweetA = [random.choice(TIDs[0]) for i in range(multimedia.shape[0])]
+    
+    for i in range(len(tweetA)):
+        with driver.session() as session:
+            query = (
+                "MATCH (a:Tweet), (b:Multimedia) "
+                "WHERE a.TID = $tweetA AND b.Link = $multimediaB "
+                "MERGE (a)-[r:Contiene ]->(b) "
+                "RETURN a, b "
+            )
+
+            result = session.run(
+                query, 
+                tweetA = tweetA[i], 
+                multimediaB = multimedia.loc[i, "link"]
+                )
+            
