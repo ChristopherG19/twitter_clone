@@ -442,22 +442,65 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             multimediaB = multimedia.loc[i, "link"]
     #             )
             
-    # Menciona
+    # # Menciona
+    # random.seed(30)
+    # tweetA = [random.choice(TIDs[0]) for i in range(50)]
+    # userB = [random.choice(userNames) for i in range(50)]
+    
+    # for i in range(len(tweetA)):
+    #     with driver.session() as session:
+    #         query = (
+    #             "MATCH (a:Tweet), (b:Usuario) "
+    #             "WHERE a.TID = $tweetA AND b.Usuario = $userB "
+    #             "MERGE (a)-[r:Menciona ]->(b) "
+    #             "RETURN a, b "
+    #         )
+
+    #         result = session.run(
+    #             query, 
+    #             tweetA = tweetA[i], 
+    #             userB = userB[i], 
+    #             )
+
+
+    # # Notifica (Notificacion -> Usuario)
+    # NotificationIDs = []
+    # with driver.session() as session:
+    #     result = session.run("MATCH (n:Notification) RETURN ID(n)")
+    #     NotificationIDs = [record["ID(n)"] for record in result]
+
+    # userB = [random.choice(userNames) for i in range(len(NotificationIDs))]
+
+    # for i in range(len(NotificationIDs)):
+    #     with driver.session() as session:
+    #         query = (
+    #             "MATCH (a), (b:Usuario) "
+    #             "WHERE ID(a) IN [$NID] AND b.Usuario = $userB "
+    #             "MERGE (a)-[r:Notifica ]->(b) "
+    #             "RETURN a, b "
+    #         )
+
+    #         result = session.run(
+    #             query, 
+    #             NID = NotificationIDs[i], 
+    #             userB = userB[i], 
+    #             )
+    
+    # Tageado (tweet -> Hashtag)
     random.seed(30)
-    tweetA = [random.choice(TIDs[0]) for i in range(50)]
-    userB = [random.choice(userNames) for i in range(50)]
+    tweetA = [random.choice(TIDs[0]) for i in range(len(hashtags["hashtag"]))]
     
     for i in range(len(tweetA)):
         with driver.session() as session:
             query = (
-                "MATCH (a:Tweet), (b:Usuario) "
-                "WHERE a.TID = $tweetA AND b.Usuario = $userB "
-                "MERGE (a)-[r:Menciona ]->(b) "
+                "MATCH (a:Tweet), (b:Hashtag) "
+                "WHERE a.TID = $tweetA AND b.Nombre = $hashtagB "
+                "MERGE (a)-[r:Tageado ]->(b) "
                 "RETURN a, b "
             )
 
             result = session.run(
                 query, 
                 tweetA = tweetA[i], 
-                userB = userB[i], 
+                hashtagB = hashtags.loc[i, "hashtag"]
                 )
