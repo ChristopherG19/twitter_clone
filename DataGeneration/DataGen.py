@@ -486,21 +486,45 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             userB = userB[i], 
     #             )
     
-    # Tageado (tweet -> Hashtag)
-    random.seed(30)
-    tweetA = [random.choice(TIDs[0]) for i in range(len(hashtags["hashtag"]))]
+    # # Tageado (tweet -> Hashtag)
+    # random.seed(30)
+    # tweetA = [random.choice(TIDs[0]) for i in range(len(hashtags["hashtag"]))]
     
-    for i in range(len(tweetA)):
+    # for i in range(len(tweetA)):
+    #     with driver.session() as session:
+    #         query = (
+    #             "MATCH (a:Tweet), (b:Hashtag) "
+    #             "WHERE a.TID = $tweetA AND b.Nombre = $hashtagB "
+    #             "MERGE (a)-[r:Tageado ]->(b) "
+    #             "RETURN a, b "
+    #         )
+
+    #         result = session.run(
+    #             query, 
+    #             tweetA = tweetA[i], 
+    #             hashtagB = hashtags.loc[i, "hashtag"]
+    #             )
+
+    # Crea (Usuario -> Espacio)
+    SpaceIDs = []
+    with driver.session() as session:
+        result = session.run("MATCH (n:Space) RETURN ID(n)")
+        SpaceIDs = [record["ID(n)"] for record in result]
+
+    userA = [random.choice(userNames) for i in range(len(SpaceIDs))]
+
+    for i in range(len(SpaceIDs)):
         with driver.session() as session:
             query = (
-                "MATCH (a:Tweet), (b:Hashtag) "
-                "WHERE a.TID = $tweetA AND b.Nombre = $hashtagB "
-                "MERGE (a)-[r:Tageado ]->(b) "
+                "MATCH (a), (b:Usuario) "
+                "WHERE ID(a) IN [$NID] AND b.Usuario = $userA "
+                "MERGE (a)<-[r:Crea {Fecha:$fecha} ]-(b) "
                 "RETURN a, b "
             )
 
             result = session.run(
                 query, 
-                tweetA = tweetA[i], 
-                hashtagB = hashtags.loc[i, "hashtag"]
+                NID = SpaceIDs[i], 
+                userA = userA[i], 
+                fecha = "2023-05-27"
                 )
