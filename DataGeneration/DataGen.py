@@ -69,13 +69,13 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #     name = users.loc[index, "nombre"]
     #     email = users.loc[index, "email"]
     #     password = users.loc[index, "password"]
-    #     fechaN = users.loc[index, "fecha nacimiento"]
-    #     verified = users.loc[index, "verificado"]
+    #     fechaN = datetime.datetime.strptime(users.loc[index, "fecha nacimiento"], "%Y-%m-%d")
+    #     verified = bool(users.loc[index, "verificado"])
     #     desc = users.loc[index, "desc"]
 
     #     with driver.session() as session:
     #         result = session.run(
-    #             "CREATE (:Usuario {Nombre: $name, Usuario: $username, Correo: $email, Password: $password, FechaNacimiento: $fechaN, Descripcion: $desc, Verificado: $verified })",
+    #             "MERGE (:Usuario {Nombre: $name, Usuario: $username, Correo: $email, Password: $password, FechaNacimiento: $fechaN, Descripcion: $desc, Verificado: $verified })",
     #             username = username, 
     #             name = name, 
     #             email = email, 
@@ -89,15 +89,15 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     # for index, row in spaces.iterrows():
     #     categoria = spaces.loc[index, "categoria"]
     #     ubicacion = spaces.loc[index, "ubicacion"]
-    #     horaProgramada = spaces.loc[index, "horaProgramada"]
-    #     horaFinalizada = spaces.loc[index, "horaFinalizada"]
+    #     horaProgramada = datetime.datetime.strptime(spaces.loc[index, "horaProgramada"], "%H:%M").time()
+    #     horaFinalizada = datetime.datetime.strptime(spaces.loc[index, "horaFinalizada"], "%I:%M %p").time()
     #     titulo = spaces.loc[index, "titulo"]
     #     desc = spaces.loc[index, "desc"]
     #     multimedia = spaces.loc[index, "multimedia"]
 
     #     with driver.session() as session:
     #         result = session.run(
-    #             "CREATE (:Space {Categoria: $categoria, Ubicacion:$ubicacion, HoraProgramada: $horaProgramada, HoraFinalizada: $horaFinalizada, Titulo: $titulo, Desc: $desc, Multimedia:$multimedia})",
+    #             "MERGE (:Space {Categoria: $categoria, Ubicacion:$ubicacion, HoraProgramada: $horaProgramada, HoraFinalizada: $horaFinalizada, Titulo: $titulo, Desc: $desc, Multimedia:$multimedia})",
     #             categoria = categoria, 
     #             ubicacion = ubicacion, 
     #             horaProgramada = horaProgramada, 
@@ -111,9 +111,9 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     # for index, row in spaces.iterrows():
     #     nombre = hashtags.loc[index, "hashtag"]
     #     categoria = hashtags.loc[index, "categoria"]
-    #     fechaCreacion = hashtags.loc[index, "fechaCreacion"]
-    #     trending = "false"
-    #     explored = "false"
+    #     fechaCreacion = datetime.datetime.strptime(hashtags.loc[index, "fechaCreacion"], "%m/%d/%Y")
+    #     trending = False
+    #     explored = False
     #     cantidad_t = 0
     #     vistas = 0
 
@@ -132,11 +132,11 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     # # Notifications
     # for index, row in notifications.iterrows():
     #     user = users.loc[random.randint(0, users.shape[1]), "user"]
-    #     fecha = notifications.loc[index, "fecha"]
-    #     hora = notifications.loc[index, "hora"]
+    #     fecha = datetime.datetime.strptime(notifications.loc[index, "fecha"], "%Y-%m-%d").date()
+    #     hora = datetime.datetime.strptime(notifications.loc[index, "hora"], "%I:%M %p").time()
     #     tipo = notifications.loc[index, "tipo"]
-    #     trending = notifications.loc[index, "trending"]
-    #     visto = notifications.loc[index, "visto"]
+    #     trending = bool(notifications.loc[index, "trending"])
+    #     visto = bool(notifications.loc[index, "visto"])
 
     #     with driver.session() as session:
     #         result = session.run(
@@ -153,10 +153,10 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     # for index, row in notifications.iterrows():
     #     link = multimedia.loc[index, "link"]
     #     alter = multimedia.loc[index, "alter"]
-    #     fechaSubida = multimedia.loc[index, "fechaSubida"]
+    #     fechaSubida = datetime.datetime.strptime(multimedia.loc[index, "fechaSubida"], "%m/%d/%Y").date()
     #     size = multimedia.loc[index, "size"]
     #     tipo = "Imagen"
-    #     activo = "true"
+    #     activo = True
 
     #     with driver.session() as session:
     #         if type(alter) != float:
@@ -187,10 +187,10 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #     if (type(tweets.loc[index, "buzz"]) != float):
     #         link = "www." + tweets.loc[index, "buzz"] + ".com"
     #     views = tweets.loc[index, "views"]
-    #     visibility = tweets.loc[index, "visibility"]
+    #     visibility = bool(tweets.loc[index, "visibility"])
     #     contestar = tweets.loc[index, "quien_puede_responder"]
-    #     fecha = tweets.loc[index, "fecha"]
-    #     hora = tweets.loc[index, "hora"]
+    #     fecha = datetime.datetime.strptime(tweets.loc[index, "fecha"], "%Y-%m-%d").date()
+    #     hora = datetime.datetime.strptime(tweets.loc[index, "hora"], "%I:%M %p").time()
 
     #     with driver.session() as session:
     #         if len(link) > 0:
@@ -219,11 +219,11 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
 
     # relaciones _______________________________________________________________
 
-    # # sigue (user -> user)
-    # random.seed(10)
-    # userA = [random.choice(userNames) for i in range(len(userNames))]
-    # random.seed(20)
-    # userB = [random.choice(userNames) for i in range(len(userNames))]
+    # sigue (user -> user)
+    random.seed(10)
+    userA = [random.choice(userNames) for i in range(len(userNames))]
+    random.seed(20)
+    userB = [random.choice(userNames) for i in range(len(userNames))]
 
     # for i in range(len(userA)):
 
@@ -244,7 +244,7 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             query, 
     #             userA = userA[i], 
     #             userB = userB[i], 
-    #             fecha = "2023-05-27",
+    #             fecha = datetime.datetime.now(),
     #             cf=True if i%20 else False
     #             )
 
@@ -283,7 +283,7 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #         query = (
     #             "MATCH (a:Usuario), (b:Tweet) "
     #             "WHERE a.Usuario = $userA AND b.TID = $tweetB "
-    #             "MERGE (a)-[r:Reacciona {Like:$like, Share:$share, Fecha:$fecha}]->(b) "
+    #             "MERGE (a)-[r:Reacciona {Like:$like, Share:$share, Fecha:$fecha, Hora:$hora}]->(b) "
     #             "RETURN a, b "
     #         )
 
@@ -293,7 +293,8 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             tweetB = tweetB[i], 
     #             like=likes[i], 
     #             share=shares[i],
-    #             fecha = "2023-05-27"
+    #             fecha = datetime.datetime.now().date(),
+    #             hora = datetime.datetime.now().time()
     #             )
 
     # # Responde (tweet -> tweet)
@@ -303,28 +304,30 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     # device = [random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi']) for i in range(tweets.shape[0])]
 
     # for i in range(len(tweetA)):
-    #     with driver.session() as session:
-    #         query = (
-    #             "MATCH (a:Tweet), (b:Tweet) "
-    #             "WHERE a.TID = $tweetA AND b.TID = $tweetB "
-    #             "MERGE (a)-[r:Responde {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
-    #             "RETURN a, b "
-    #         )
 
-    #         result = session.run(
-    #             query, 
-    #             tweetA = tweetA[i], 
-    #             tweetB = tweetA[i], 
-    #             device = device[i],
-    #             ubicacion = "USA"
+    #     if tweetA[i] != tweetB[i]:
+    #         # Evita Tweets que se responden a sí mismos
+
+    #         with driver.session() as session:
+    #             query = (
+    #                 "MATCH (a:Tweet), (b:Tweet) "
+    #                 "WHERE a.TID = $tweetA AND b.TID = $tweetB "
+    #                 "MERGE (a)-[r:Responde {Ubicacion:$ubicacion, Dispositivo:$device}]->(b) "
+    #                 "RETURN a, b "
     #             )
+
+    #             result = session.run(
+    #                 query, 
+    #                 tweetA = tweetA[i], 
+    #                 tweetB = tweetB[i], 
+    #                 device = device[i],
+    #                 ubicacion = "USA"
+    #                 )
 
     # # Mensaje (Usuario -> Usuario)
     # random.seed(40)
     # userA = [random.choice(userNames) for i in range(messages.shape[0])]
     # userB = [random.choice(userNames) for i in range(messages.shape[0])]
-
-    # print(messages.shape[0])
 
     # for i in range(messages.shape[0]):
 
@@ -357,14 +360,13 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #                     userA = userA[i], 
     #                     userB = userB[i], 
     #                     text = messages.loc[i, "texto"],
-    #                     dia = messages.loc[i, "dia"],
-    #                     hora = messages.loc[i, "hora"],
+    #                     dia = datetime.datetime.strptime(messages.loc[i, "dia"], "%Y-%m-%d").date(),
+    #                     hora = datetime.datetime.strptime(messages.loc[i, "hora"], "%I:%M %p").time(),
     #                     contenido = messages.loc[i, "contenido"], 
     #                     links = links
     #                     )
                     
     #         else: 
-
     #             with driver.session() as session:
     #                 query = (
     #                     "MATCH (a:Usuario), (b:Usuario) "
@@ -378,14 +380,13 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #                     userA = userA[i], 
     #                     userB = userB[i], 
     #                     text = messages.loc[i, "texto"],
-    #                     dia = messages.loc[i, "dia"],
-    #                     hora = messages.loc[i, "hora"],
+    #                     dia = datetime.datetime.strptime(messages.loc[i, "dia"], "%Y-%m-%d").date(),
+    #                     hora = datetime.datetime.strptime(messages.loc[i, "hora"], "%I:%M %p").time(),
     #                     contenido = messages.loc[i, "contenido"]
     #                     )
                     
     #     else:
     #         if len(links) > 0:
-
     #             with driver.session() as session:
     #                 query = (
     #                     "MATCH (a:Usuario), (b:Usuario) "
@@ -399,13 +400,12 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #                     userA = userA[i], 
     #                     userB = userB[i], 
     #                     text = messages.loc[i, "texto"],
-    #                     dia = messages.loc[i, "dia"],
-    #                     hora = messages.loc[i, "hora"],
+    #                     dia = datetime.datetime.strptime(messages.loc[i, "dia"], "%Y-%m-%d").date(),
+    #                     hora = datetime.datetime.strptime(messages.loc[i, "hora"], "%I:%M %p").time(),
     #                     links = links
     #                     )
                     
     #         else: 
-
     #             with driver.session() as session:
     #                 query = (
     #                     "MATCH (a:Usuario), (b:Usuario) "
@@ -419,8 +419,8 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #                     userA = userA[i], 
     #                     userB = userB[i], 
     #                     text = messages.loc[i, "texto"],
-    #                     dia = messages.loc[i, "dia"],
-    #                     hora = messages.loc[i, "hora"],
+    #                     dia = datetime.datetime.strptime(messages.loc[i, "dia"], "%Y-%m-%d").date(),
+    #                     hora = datetime.datetime.strptime(messages.loc[i, "hora"], "%I:%M %p").time(),
     #                     )
 
     # # Contiene (tweet -> multimedia)
@@ -526,34 +526,34 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #             query, 
     #             NID = SpaceIDs[i], 
     #             userA = userA[i], 
-    #             fecha = "2023-05-27"
+    #             fecha = datetime.datetime.now()
     #             )
 
-    # Interactua (Usuario -> Espacio)
+    # # Interactua (Usuario -> Espacio)
 
-    SpaceIDs = []
-    with driver.session() as session:
-        result = session.run("MATCH (n:Space) RETURN ID(n)")
-        SpaceIDs = [record["ID(n)"] for record in result]
+    # SpaceIDs = []
+    # with driver.session() as session:
+    #     result = session.run("MATCH (n:Space) RETURN ID(n)")
+    #     SpaceIDs = [record["ID(n)"] for record in result]
 
-    userA = [random.choice(userNames) for i in range(50)]
-    spaceB = [random.choice(SpaceIDs) for i in range(50)]
+    # userA = [random.choice(userNames) for i in range(50)]
+    # spaceB = [random.choice(SpaceIDs) for i in range(50)]
 
-    for i in range(len(SpaceIDs)):
-        with driver.session() as session:
-            query = (
-                "MATCH (a), (b:Usuario) "
-                "WHERE ID(a) IN [$SID] AND b.Usuario = $userA "
-                "MERGE (a)<-[r:Interactua {Interaccion:$interaccion, HoraIngreso:$horaIngreso, HoraSalida:$horaSalida}]-(b) "
-                "RETURN a, b "
-            )
+    # for i in range(len(SpaceIDs)):
+    #     with driver.session() as session:
+    #         query = (
+    #             "MATCH (a), (b:Usuario) "
+    #             "WHERE ID(a) IN [$SID] AND b.Usuario = $userA "
+    #             "MERGE (a)<-[r:Interactua {Interaccion:$interaccion, HoraIngreso:$horaIngreso, HoraSalida:$horaSalida}]-(b) "
+    #             "RETURN a, b "
+    #         )
 
-            result = session.run(
-                query, 
-                SID = SpaceIDs[i], 
-                userA = userA[i], 
-                interaccion = True, 
-                horaIngreso = datetime.datetime.now(),
-                horaSalida = datetime.datetime.now()
-                )
+    #         result = session.run(
+    #             query, 
+    #             SID = SpaceIDs[i], 
+    #             userA = userA[i], 
+    #             interaccion = True, 
+    #             horaIngreso = datetime.datetime.now(),
+    #             horaSalida = datetime.datetime.now()
+    #             )
 
