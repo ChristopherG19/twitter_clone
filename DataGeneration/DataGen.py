@@ -423,22 +423,41 @@ with GraphDatabase.driver(N4J_uri, auth=(N4J_user, N4J_pss)) as driver:
     #                     hora = messages.loc[i, "hora"],
     #                     )
 
-    # Contiene (tweet -> multimedia)
+    # # Contiene (tweet -> multimedia)
+    # random.seed(30)
+    # tweetA = [random.choice(TIDs[0]) for i in range(multimedia.shape[0])]
+    
+    # for i in range(len(tweetA)):
+    #     with driver.session() as session:
+    #         query = (
+    #             "MATCH (a:Tweet), (b:Multimedia) "
+    #             "WHERE a.TID = $tweetA AND b.Link = $multimediaB "
+    #             "MERGE (a)-[r:Contiene ]->(b) "
+    #             "RETURN a, b "
+    #         )
+
+    #         result = session.run(
+    #             query, 
+    #             tweetA = tweetA[i], 
+    #             multimediaB = multimedia.loc[i, "link"]
+    #             )
+            
+    # Menciona
     random.seed(30)
-    tweetA = [random.choice(TIDs[0]) for i in range(multimedia.shape[0])]
+    tweetA = [random.choice(TIDs[0]) for i in range(50)]
+    userB = [random.choice(userNames) for i in range(50)]
     
     for i in range(len(tweetA)):
         with driver.session() as session:
             query = (
-                "MATCH (a:Tweet), (b:Multimedia) "
-                "WHERE a.TID = $tweetA AND b.Link = $multimediaB "
-                "MERGE (a)-[r:Contiene ]->(b) "
+                "MATCH (a:Tweet), (b:Usuario) "
+                "WHERE a.TID = $tweetA AND b.Usuario = $userB "
+                "MERGE (a)-[r:Menciona ]->(b) "
                 "RETURN a, b "
             )
 
             result = session.run(
                 query, 
                 tweetA = tweetA[i], 
-                multimediaB = multimedia.loc[i, "link"]
+                userB = userB[i], 
                 )
-            
