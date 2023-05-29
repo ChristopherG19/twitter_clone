@@ -7,6 +7,25 @@ from django.contrib.auth.views import LogoutView
 def node_to_dict(node):
     return dict(node)
 
+def convert_datetime(node):
+    tup = list(node.items())
+    
+    fecha_nacimiento = None
+    for tupla in tup:
+        if tupla[0] == 'FechaNacimiento':
+            fecha_nacimiento = tupla[1]
+    
+    # Convertir el objeto DateTime de Neo4j a un objeto datetime de Python
+    fecha_python = fecha_nacimiento.to_native()
+    
+    # Modificar el valor de 'FechaNacimiento'
+    for i in range(len(tup)):
+        if tup[i][0] == 'FechaNacimiento':
+            tup[i] = ('FechaNacimiento', str(fecha_python))
+            break
+      
+    return dict(tup)
+
 def home(request):
     # Se obtiene el usuario activo
     user_node = request.session.get('user')
@@ -63,8 +82,8 @@ def login(request):
             return render(request, 'twitter/login.html', {'error_message': error_message})
         
         else:
-            user_dict = node_to_dict(UserFound)
-            request.session['user'] = user_dict
+            user = convert_datetime(UserFound)
+            request.session['user'] = user
             return redirect('home')
     
     return render(request, 'twitter/login.html')
