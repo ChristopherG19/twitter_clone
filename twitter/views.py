@@ -30,7 +30,9 @@ def home(request):
     # Se obtiene el usuario activo
     user_node = request.session.get('user')
     if user_node != None:
-        context = {'userInfo': user_node}
+        cantidad_seguidos = connection.get_following(user_node["Usuario"]) 
+        cantidad_seguidores = connection.get_follower(user_node["Usuario"]) 
+        context = {'userInfo': user_node, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
         return render(request, 'twitter/home.html', context)
 
     return redirect('login')

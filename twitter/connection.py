@@ -38,6 +38,30 @@ def get_user(username, password):
             return user["u"]
         else:
             return None
+
+def get_following(username):
+    with driver.session() as session:
+        query = "MATCH (:Usuario {Usuario: $username})-[:Sigue]->(n:Usuario) RETURN COUNT(n) AS NumeroDeUsuariosSeguidos"
+        # query = "MATCH (:Usuario {Usuario: $username})-[:Sigue]->(n:Usuario) WITH COUNT(DISTINCT n) AS NumeroDeUsuariosSeguidos RETURN NumeroDeUsuariosSeguidos;"
+        result = session.run(query, username=username)
+        user = result.single()
+        if user:
+            return user[ "NumeroDeUsuariosSeguidos"]
+        else:
+            return None
         
+def get_follower(username):
+    with driver.session() as session:
+        query = "MATCH (:Usuario)-[:Sigue]->(n:Usuario {Usuario: $username}) RETURN COUNT(n) AS NumeroDeUsuariosSeguidores"
+        # query = "MATCH (:Usuario)-[:Sigue]->(n:Usuario {Usuario: $username}) WITH COUNT(DISTINCT n) AS NumeroDeUsuariosSeguidores RETURN NumeroDeUsuariosSeguidores;"
+        result = session.run(query, username=username)
+        user = result.single()
+        if user:
+            return user[ "NumeroDeUsuariosSeguidores"]
+        else:
+            return None
+
+
+
 # No olvides cerrar la conexión al finalizar
 driver.close()
