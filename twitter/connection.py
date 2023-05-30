@@ -55,9 +55,7 @@ def get_dms(user):
             user = user['Usuario']
         )
 
-        for record in result:
-            print(record)
-            
+        for record in result:     
             mtemp =[record['a'], record['b'], record['r']]
 
 

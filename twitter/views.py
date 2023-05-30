@@ -46,7 +46,26 @@ def dms(request):
         context = {
             'userInfo': user_node,
             'messages':messages,
-            'contacts':messages.keys
+            'contacts':messages.keys,
+            'actual_contact': None
+            }
+        return render(request, 'twitter/dms.html', context)
+
+    return redirect('login')
+
+def dmsP(request, contact):
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        messages = connection.get_dms(user_node)          
+
+        context = {
+            'userInfo': user_node,
+            'messages':messages,
+            'contacts':messages.keys,
+            'actual_contact': contact
             }
         return render(request, 'twitter/dms.html', context)
 
