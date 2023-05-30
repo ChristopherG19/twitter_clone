@@ -199,3 +199,13 @@ def unfollow(request, username):
     relationship = connection.unfollow(user_node['Usuario'], to_user['Usuario'])
 
     return redirect('home')
+
+def get_notifications(request):
+    user_node = request.session.get('user')
+    notis = []
+    nots = connection.get_notifications_user(user_node['Usuario'])
+    for n in nots:
+        notis.append(convert_datetime(n))
+    
+    context = {'userInfo': user_node, 'notifications':notis}
+    return render(request, 'twitter/notificaciones.html', context)

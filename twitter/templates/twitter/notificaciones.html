@@ -1,0 +1,30 @@
+{% extends 'twitter/layout.html' %}
+{% load humanize %}
+{% block content %}
+<!-- Center -->
+<div class="content">
+    <!-- Notificaciones -->
+    {% for notification in notifications %}
+    <div id="tweetCards">
+        <!-- FOR LOOP HERE -->
+        <div class="tweet-wrap" style="border-radius:20px">
+            <div class="tweet-header">
+                <img src="https://toppng.com/uploads/preview/roger-berry-avatar-placeholder-11562991561rbrfzlng6h.png"
+                    alt="" class="avator">
+                <div class="tweet-header-info">
+                    <span>{{ notification.Fecha | naturaltime}}</span>
+                    {% if notification.Tipo == 'follow' %}
+                    <h3>{{ notification.UserMencionado }} ha empezado a seguirte!</h3>
+                    {% endif %}
+                    <a href="">Ver notificacion</a>
+                </div>
+            </div>
+        </div>
+        <!-- FOR LOOP HERE -->
+    </div>
+    {% endfor %}
+    <!-- EndNotificaciones -->
+</div>
+<!-- End Center -->
+
+{% endblock content %}

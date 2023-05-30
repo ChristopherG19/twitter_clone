@@ -204,3 +204,15 @@ def get_following_list(username):
             users.append(tweets_node)
             
     return users
+
+
+def get_notifications_user(username):
+    noti = []
+    with driver.session() as session:
+        query = "MATCH (n:Notification)-[s:Notifica]->(u:Usuario {Usuario: $username}) RETURN n"
+        result = session.run(query, username=username)
+        for record in result:
+            tweets_node = record["n"]
+            noti.append(tweets_node)
+            
+    return noti
