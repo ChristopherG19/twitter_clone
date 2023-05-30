@@ -11,4 +11,6 @@ urlpatterns = [
     path('delete/<str:tweet_id>/', views.delete, name='delete'),
     path('profile/<str:username>', views.profile, name='profile'),
     path('edit/', views.edit_profile, name='edit'),
+    path('follow/<str:username>/', views.follow, name='follow'),
+    path('unfollow/<str:username>/', views.unfollow, name='unfollow'),
 ]

@@ -22,6 +22,13 @@
                         {{cantidad_followers}}  Followers
                         {{cantidad_following}} Following
                     </h6>
+                    {% if userInfo != user %}
+                        {% if user not in follows %}
+                        <a href="{% url 'follow' user.Usuario %}" class="btn text-white rounded-pill">Seguir</a>
+                        {% else %}
+                        <a href="{% url 'unfollow' user.Usuario %}" class="btn text-white rounded-pill">Dejar de seguir</a>
+                        {% endif %}
+                    {% endif %}
                 </div>
 
             </div>
@@ -104,11 +111,13 @@
                     </div>
 
                     <!-- DELETE -->
+                    {% if userInfo == user %}
                     <div class="trash">
                         <a href="#" style="background: white; border: none;">
                             <i class="fa fa-trash-o" style="color:#657786; font-size: 20px" aria-hidden="true"></i>
                         </a>
                     </div>
+                    {% endif %}
                     <!-- END-DELETE -->
                 </div>
             </div>

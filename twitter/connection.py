@@ -1,5 +1,6 @@
 from neo4j import GraphDatabase
 import random
+import datetime
 
 uri = 'neo4j+s://f818cdff.databases.neo4j.io'
 username = 'neo4j'
@@ -106,7 +107,6 @@ def get_tweets():
     return tweets
 
 def public_tweet(user, tweet):
-    
     views, fecha, contestar, text, visibility, tid = tweet
     dis = random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi'])
 
@@ -153,3 +153,54 @@ def edit_profile(user, name, username, pasw, desc):
             return user["u"]
         else:
             return None
+        
+def follow(userA, userB):
+    
+    fecha = datetime.datetime.now()
+    cfs = random.choice([True, False])
+    
+    with driver.session() as session:
+        query = """
+        MATCH (a:Usuario {Usuario: $usuarioA})
+        MATCH (b:Usuario {Usuario: $usuarioB})
+        MERGE (a)-[:Sigue {fecha:$fecha, closeFriend:$cf}]->(b)
+        RETURN a, b
+        """
+        result = session.run(query, usuarioA=userA, usuarioB=userB, fecha=fecha, cf=cfs)
+        
+        if result:
+            newfecha = fecha = datetime.datetime.now().date()
+            hora_actual = datetime.datetime.now().time()
+            bol = False
+
+            query = """
+            MATCH (a:Usuario {Usuario: $usuarioB})
+            MERGE (n:Notification {
+                Tipo: 'follow',
+                Fecha: $fecha,
+                Hora: $hora,
+                Visto: $val,
+                UserMencionado: $userM,
+                Trending: $val2
+            })-[:Notifica]->(a)
+            """
+            result = session.run(query, usuarioB=userB, fecha=newfecha, hora=hora_actual, val=bol, userM=userA, val2=bol)
+
+def unfollow(userA, userB):
+    with driver.session() as session:
+        query = """
+        MATCH (u:Usuario {Usuario: $usuarioA})-[s:Sigue]->(w:Usuario {Usuario: $usuarioB}) 
+        DETACH DELETE s;
+        """
+        result = session.run(query, usuarioA=userA, usuarioB=userB)
+
+def get_following_list(username):
+    users = []
+    with driver.session() as session:
+        query = "MATCH (n:Usuario {Usuario: $username})-[:Sigue]->(w:Usuario) RETURN w"
+        result = session.run(query, username=username)
+        for record in result:
+            tweets_node = record["w"]
+            users.append(tweets_node)
+            
+    return users

@@ -145,15 +145,19 @@ def delete(request, tweet_id):
 def profile(request, username):
     user_node = request.session.get('user') 
     user = convert_datetime(connection.get_user_node(username))
+    following = []
     if user != None:
+        fol = connection.get_following_list(user_node['Usuario'])
+        for user_n in fol:
+            following.append(convert_datetime(user_n))
         cantidad_seguidos = connection.get_following(user["Usuario"]) 
         cantidad_seguidores = connection.get_follower(user["Usuario"]) 
         tw = connection.get_user_tweets(username)
         tweets = []
         for tweet_node in tw:
             tweets.append(convert_datetime(tweet_node))
-            
-        context = {'userInfo': user_node, 'user':user, 'tweets':tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
+
+        context = {'userInfo': user_node, 'user':user, 'tweets':tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores, 'follows':following}
         return render(request, 'twitter/profile.html', context)
         
 def edit_profile(request):
@@ -181,3 +185,17 @@ def edit_profile(request):
         
     context = {'user':user_node}
     return render(request, 'twitter/editar.html', context)
+
+def follow(request, username):
+    user_node = request.session.get('user')
+    to_user = convert_datetime(connection.get_user_node(username))
+    relationship = connection.follow(user_node['Usuario'], to_user['Usuario'])
+
+    return redirect('home')
+    
+def unfollow(request, username):
+    user_node = request.session.get('user')
+    to_user = convert_datetime(connection.get_user_node(username))
+    relationship = connection.unfollow(user_node['Usuario'], to_user['Usuario'])
+
+    return redirect('home')
