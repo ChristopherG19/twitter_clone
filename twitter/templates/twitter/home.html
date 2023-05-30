@@ -8,11 +8,15 @@
             <div class="card " style="width: 18rem; text-align:center;border-radius: 20px;">
                 <img class="card-img-top rounded-circle"
                     style="width:60%; position: relative;left: 62px;padding-top: 20px;"
-                    src="https://i.pinimg.com/736x/ea/f2/2e/eaf22e6a189f76ed24054e2ca7feb00f.jpg" alt="Card image cap">
+                    src="https://toppng.com/uploads/preview/roger-berry-avatar-placeholder-11562991561rbrfzlng6h.png" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title font-weight-bold">{{ userInfo.Nombre }}</h5>
                     <h6 class="card-title font-weight-bold">@{{ userInfo.Usuario }}</h6>
-
+                    {% if userInfo.Verificado %}
+                    <img class="card-img-top rounded-circle"
+                    style="width:10%; position: relative;padding-top: 5px; padding-bottom: 10px;"
+                    src="data:image/png;base64,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" alt="Card image cap">
+                    {% endif %}
                     <p class="card-text">{{ userInfo.Descripcion }}</p>
                     <h6 class="card-title font-weight-bold">
                         100 Followers
@@ -36,7 +40,7 @@
             <div class="d-flex">
                 <div class="col-xs">
                     <!-- Image form -->
-                    <img src="https://i.pinimg.com/736x/ea/f2/2e/eaf22e6a189f76ed24054e2ca7feb00f.jpg" alt=""
+                    <img src="https://toppng.com/uploads/preview/roger-berry-avatar-placeholder-11562991561rbrfzlng6h.png" alt=""
                         class="avator">
                     <!-- Formulario -->
                 </div>
@@ -44,8 +48,7 @@
                 <!-- Formulario -->
                 <form class="col pr-0" method="post">
                     {% csrf_token %}
-
-                    <textarea class="form-control w-100" id="contentsBox" placeholder="¡¿Qué está pasando?!" maxlength=140></textarea>
+                    <textarea class="form-control w-100" name="textArea" id="contentsBox" placeholder="¡¿Qué está pasando?!" maxlength=140></textarea>
                     <div class="container d-flex" style="padding: 1rem 0 0 0;">
                         <div id="leftBtn">
                             <div id="charBadge" class="badge badge-pill badge-primary ml-2"
@@ -67,6 +70,7 @@
         </div>
 
         <!-- Tweets -->
+        {% for user, tweet in tweets %}
         <div id="tweetCards">
             <!-- FOR LOOP HERE -->
             <div class="tweet-wrap" style="border-radius:20px">
@@ -74,11 +78,17 @@
                     <img src="https://toppng.com/uploads/preview/roger-berry-avatar-placeholder-11562991561rbrfzlng6h.png"
                         alt="" class="avator">
                     <div class="tweet-header-info">
-                        * based snow bunny <span>@yumjeezy</span><span>. Jun 27
+                        {{ user.Nombre }}
+                        <span>
+                            {% if user.Verificado %}
+                            <img class="card-img-top rounded-circle"
+                            style="width:5%; position: relative;"
+                            src="data:image/png;base64,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" alt="Card image cap">
+                            {% endif %}
                         </span>
-                        <p>🔥 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                            incididunt
-                            ut labore et dolore magna aliqua. </p>
+                        <span>@{{ user.Usuario }}</span><span>. {{ tweet.Fecha | naturaltime}}
+                        </spa* based snow bunnyn>
+                        <p> {{ tweet.Text }} </p>
                     </div>
                 </div>
                 <div class="tweet-info-counts">
@@ -94,7 +104,7 @@
                                 </path>
                             </svg>
                         </button>
-                        <div class="comment-count"></div>
+                        <div class="comment-count">0</div>
                     </div>
 
                     <div class="retweets">
@@ -108,7 +118,7 @@
                                 <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
                             </svg>
                         </button>
-                        <div class="retweet-count"> </div>
+                        <div class="retweet-count">0</div>
                     </div>
 
                     <div class="likes">
@@ -121,14 +131,14 @@
                                 </path>
                             </svg>
                         </button>
-                        <div class="likes-count"> </div>
+                        <div class="likes-count">0</div>
                     </div>
 
                     <!-- DELETE -->
-                    {% if userInfo %}
+                    {% if userInfo == user %}
                     <div class="trash">
-                        <a href="#" style="background: white; border: none;">
-                            <i class="fa fa-trash-o" style="color:#657786; font-size: 20px" aria-hidden="true"></i>
+                        <a href="{% url 'delete' tweet.TID %}" style="background: white; border: none;">
+                            <i class="fa fa-trash-o" style="color:#657786; font-size: 19px" aria-hidden="true"></i>
                         </a>
                     </div>
                     {% endif %}
@@ -136,11 +146,9 @@
                 </div>
             </div>
             <!-- FOR LOOP HERE -->
-
         </div>
+        {% endfor %}
         <!-- EndTweets -->
-
-
     </div>
     <!-- End Center -->
 

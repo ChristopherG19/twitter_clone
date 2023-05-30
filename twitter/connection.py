@@ -1,4 +1,5 @@
 from neo4j import GraphDatabase
+import random
 
 uri = 'neo4j+s://f818cdff.databases.neo4j.io'
 username = 'neo4j'
@@ -39,5 +40,59 @@ def get_user(username, password):
         else:
             return None
         
+def get_tweets():
+    tweetsIDS = []
+    tweets = []
+    with driver.session() as session:
+        query = "MATCH (tweet:Tweet) RETURN tweet ORDER BY tweet.Fecha DESC LIMIT 10"
+        result = session.run(query, username=username, password=password)
+        for record in result:
+            tweets_node = record["tweet"]["TID"]
+            tweetsIDS.append(tweets_node)
+            
+        for TID in tweetsIDS:
+            query = "MATCH (usuario:Usuario)-[:Publica]->(tweet:Tweet {TID: $TID}) RETURN usuario, tweet"
+            result = session.run(query, TID=TID)
+            record = result.single()
+            
+            user_node = record["usuario"]
+            tweet_node = record["tweet"]
+            
+            tweets.append((user_node, tweet_node))
+                    
+    return tweets
+
+def public_tweet(user, tweet):
+    
+    views, fecha, contestar, text, visibility, tid = tweet
+    dis = random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi'])
+
+    with driver.session() as session:
+        query = """
+        MATCH (u:Usuario {Nombre: $userN})
+        MERGE (u)-[:Publica {Ubicacion: 'Guatemala', Dispositivo: $dispo}]->(t:Tweet {
+            Views: $viewsN,
+            Fecha: $fechaN,
+            Contestar: $contestarN,
+            Text: $textN,
+            Visibility: $visibilityN,
+            TID: $tidN
+        })
+        """
+        result = session.run(query, userN=user, dispo=dis,
+                            viewsN=views, fechaN=fecha,
+                            contestarN=contestar, textN=text,
+                            visibilityN=visibility, tidN=tid)
+
+        if result.consume().counters.nodes_created > 0:
+            return True
+        else:
+            return None
+
 # No olvides cerrar la conexión al finalizar
 driver.close()
+
+def delete_tweet(tweet_id):
+    with driver.session() as session:
+        query = "MATCH (tweet:Tweet {TID: $tid})-[r:Publica]-() DETACH DELETE tweet, r"
+        result = session.run(query, tid=tweet_id)
