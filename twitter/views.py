@@ -41,7 +41,7 @@ def dms(request):
 
     if user_node != None:
 
-        messages = connection.get_dms(user_node)          
+        messages = connection.get_dms(user_node)
 
         context = {
             'userInfo': user_node,
@@ -63,7 +63,7 @@ def dmsP(request, contact):
 
         context = {
             'userInfo': user_node,
-            'messages':messages,
+            'messages':messages[contact],
             'contacts':messages.keys,
             'actual_contact': contact
             }

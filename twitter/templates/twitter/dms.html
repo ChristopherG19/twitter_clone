@@ -30,9 +30,20 @@
                 {% if actual_contact %}
                 <div class="tweet-header">
                     <div class="tweet-header-info">
-                        {{actual_contact.Nombre}} <span>{{actual_contact.Usuario}} </span>
-                        <div style="background: rgb(205, 248, 249); border: none;" class="mensaje-enviado"><p>Message enviado</p></div>
-                        <div style="background: rgb(226, 255, 219); border: none;" class="mensaje-recibido"><p>Message recibido</p></div>
+                        {{actual_contact}} <span> </span>
+                        {% for message in messages %}
+                            {% if actual_contact == message.1 %}
+                            <div style="background: rgb(205, 248, 249); border-radius: 5px; border: none;" class="mensaje-enviado">
+                                <p>{{message.1}} : {{message.0.Texto}}</p>
+                            </div>
+                            {% else %}
+                            <div style="background: rgb(221, 249, 230); border-radius: 5px; border: none;" class="mensaje-enviado">
+                                <p>{{message.1}} : {{message.0.Texto}}</p>
+                            </div>
+                            {% endif %}
+                        
+                        {% endfor %}
+
                     </div>
                 </div>
                 <div class="tweet-info-counts">
@@ -106,7 +117,7 @@
                             </div>
     
                             <div id="rightBtn">
-                                <button class="btn rounded-pill" style="width: 100%;">Enviar</button>
+                                <button class="btn rounded-pill" style="width: 100%;">Send</button>
                             </div>
                         </div>
                     </form>

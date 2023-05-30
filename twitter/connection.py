@@ -55,21 +55,19 @@ def get_dms(user):
             user = user['Usuario']
         )
 
-        for record in result:     
-            mtemp =[record['a'], record['b'], record['r']]
+        for record in result:
 
-
-            if record['a']['Usuario']: 
+            if record['a']['Usuario'] == user['Usuario']: 
                 exists = messages.get(record['b']['Usuario'])
                 if (exists is not None):
                     tempArr = []
                     for el in messages[record['b']['Usuario']]:
                         tempArr.append(el)
-                    tempArr.append(mtemp)
+                    tempArr.append([record['r'], record['a']['Usuario']])
                     messages[record['b']['Usuario']] = tempArr
                 else:
                     tempArr = []
-                    tempArr.append(mtemp)
+                    tempArr.append([record['r'], record['a']['Usuario']])
                     messages[record['b']['Usuario']] = tempArr
 
             else: 
@@ -78,11 +76,11 @@ def get_dms(user):
                     tempArr = []
                     for el in messages[record['a']['Usuario']]:
                         tempArr.append(el)
-                    tempArr.append(mtemp)
+                    tempArr.append([record['r'], record['a']['Usuario']])
                     messages[record['a']['Usuario']] = tempArr
                 else:
                     tempArr = []
-                    tempArr.append(mtemp)
+                    tempArr.append([record['r'], record['a']['Usuario']])
                     messages[record['a']['Usuario']] = tempArr
 
     return messages
