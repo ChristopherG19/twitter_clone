@@ -1,11 +1,25 @@
 from django.shortcuts import render,redirect
 from . import connection
-from django.contrib.auth.views import LogoutView
+import datetime
+import time
+import random
 
 # Las vistas son como puntos intermedios donde manejaremos los datos y queries
 
 def node_to_dict(node):
     return dict(node)
+
+# ID Generator 
+def SSnowflake():
+
+    Actualtime = time.time()*100000
+    End = random.randint(100000, 1000000)
+
+    concat = str("{:.0f}".format(Actualtime)) + str(End)
+
+    time.sleep(0.1)
+
+    return float(concat)
 
 def convert_datetime(node):
     tup = list(node.items())
@@ -14,7 +28,10 @@ def convert_datetime(node):
     for tupla in tup:
         if tupla[0] == 'FechaNacimiento':
             fecha_nacimiento = tupla[1]
-    
+            
+        elif tupla[0] == 'Fecha':
+            fecha_nacimiento = tupla[1]
+            
     # Convertir el objeto DateTime de Neo4j a un objeto datetime de Python
     fecha_python = fecha_nacimiento.to_native()
     
@@ -23,16 +40,48 @@ def convert_datetime(node):
         if tup[i][0] == 'FechaNacimiento':
             tup[i] = ('FechaNacimiento', str(fecha_python))
             break
+        
+        elif tup[i][0] == 'Fecha':
+            tup[i] = ('Fecha', datetime.datetime.strptime(str(fecha_python), "%Y-%m-%d"))
+            break
       
     return dict(tup)
 
 def home(request):
+    tw = connection.get_tweets()
+    tweets = []
+    for tweet_node in tw:
+        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1])))
+
     # Se obtiene el usuario activo
     user_node = request.session.get('user')
     if user_node != None:
         cantidad_seguidos = connection.get_following(user_node["Usuario"]) 
         cantidad_seguidores = connection.get_follower(user_node["Usuario"]) 
         context = {'userInfo': user_node, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
+
+        if request.method == 'POST':
+            views = 0
+            fecha = datetime.datetime.now().date()
+            contestar = random.choice(['Todos', 'Seguidos'])
+            text = request.POST.get('textArea')
+            visibility = random.choice([True, False])
+            tid = "{:.0f}".format(SSnowflake())
+            
+            if(len(text) > 0):
+                properties = [views, fecha, contestar, text, visibility, tid]
+                publicacion = connection.public_tweet(user_node['Nombre'], properties)
+                
+                if publicacion:
+                    tw = connection.get_tweets()
+                    tweets = []
+                    for tweet_node in tw:
+                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1])))
+                        
+                    context = {'userInfo': user_node, 'tweets': tweets}
+                    return render(request, 'twitter/home.html', context)
+            
+        context = {'userInfo': user_node, 'tweets': tweets}
         return render(request, 'twitter/home.html', context)
 
     return redirect('login')
@@ -45,11 +94,11 @@ def register(request):
         name = request.POST.get('name')
         descripcion = request.POST.get('descripcion')
         verificado = request.POST.getlist('verificado')  # Si el checkbox está marcado, el valor será "on"
-        fecha = request.POST.get('fecha')
+        fecha = datetime.datetime.strptime(request.POST.get('fecha'), "%Y-%m-%d")
         email = request.POST.get('email')
         passwordcon = request.POST.get('passwordcon')
         verificado_value = "true" if verificado else "false" 
-    
+
         # AGREGAR VERIFICACION DE CONTRASEÑA
         
         # Se realiza una pequeña verificacion
@@ -59,13 +108,13 @@ def register(request):
         
         else:
             # Se crea el nodo
-            UserCreate = connection.create_user(name, username, email, password, fecha, descripcion, verificado_value)   
+            UserCreate = connection.create_user(name, username, email, password, fecha, descripcion, bool(verificado_value))   
     
             if UserCreate == None:
                 error_message = "ERROR! Datos ingresados incorrectamente o usuario existente"
                 return render(request, 'twitter/register.html', {'error_message': error_message})
             else:
-                user_dict = node_to_dict(UserCreate)
+                user_dict = convert_datetime(UserCreate)
                 request.session['user'] = user_dict
                 return redirect('home')
     
@@ -89,3 +138,7 @@ def login(request):
             return redirect('home')
     
     return render(request, 'twitter/login.html')
+
+def delete(request, tweet_id):
+    deleteTwe = connection.delete_tweet(tweet_id)
+    return redirect('home')
