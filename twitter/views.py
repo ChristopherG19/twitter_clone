@@ -58,7 +58,6 @@ def home(request):
     if user_node != None:
         cantidad_seguidos = connection.get_following(user_node["Usuario"]) 
         cantidad_seguidores = connection.get_follower(user_node["Usuario"]) 
-        context = {'userInfo': user_node, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
 
         if request.method == 'POST':
             views = 0
@@ -78,10 +77,10 @@ def home(request):
                     for tweet_node in tw:
                         tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1])))
                         
-                    context = {'userInfo': user_node, 'tweets': tweets}
+                    context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
                     return render(request, 'twitter/home.html', context)
             
-        context = {'userInfo': user_node, 'tweets': tweets}
+        context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
         return render(request, 'twitter/home.html', context)
 
     return redirect('login')
