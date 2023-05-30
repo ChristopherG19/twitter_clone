@@ -84,6 +84,46 @@ def get_dms(user):
                     messages[record['a']['Usuario']] = tempArr
 
     return messages
+
+def sendMessage(data):
+
+    with driver.session() as session:
+        if (data['contenido']) is not None:
+            query = (
+                "MATCH (a:Usuario), (b:Usuario) "
+                "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+                "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido}]->(b) "
+                "RETURN a, b "
+            )
+
+            session.run(
+                query, 
+                userA = data['sender'], 
+                userB = data['reciever'], 
+                text = data['texto'], 
+                dia = data['dia'],
+                hora = data['hora'],
+                contenido = data['contenido']
+            )
+
+        else:
+            query = (
+                "MATCH (a:Usuario), (b:Usuario) "
+                "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+                "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Links:$links}]->(b) "
+                "RETURN a, b "
+            )
+
+            session.run(
+                query, 
+                userA = data['sender'], 
+                userB = data['reciever'], 
+                text = data['texto'], 
+                dia = data['dia'],
+                hora = data['hora'],
+            )
+
         
+            
 # No olvides cerrar la conexión al finalizar
 driver.close()

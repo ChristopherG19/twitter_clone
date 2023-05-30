@@ -35,10 +35,12 @@
                             {% if actual_contact == message.1 %}
                             <div style="background: rgb(205, 248, 249); border-radius: 5px; border: none;" class="mensaje-enviado">
                                 <p>{{message.1}} : {{message.0.Texto}}</p>
+                                <p>Attachment: {{message.0.Contenido}}</p>
                             </div>
                             {% else %}
                             <div style="background: rgb(221, 249, 230); border-radius: 5px; border: none;" class="mensaje-enviado">
                                 <p>{{message.1}} : {{message.0.Texto}}</p>
+                                <p>Attachment: {{message.0.Contenido}}</p>
                             </div>
                             {% endif %}
                         
@@ -107,7 +109,8 @@
                     <form class="col pr-0" method="post">
                         {% csrf_token %}
     
-                        <textarea class="form-control w-200" id="contentsBox" placeholder="Escribe aquí tu mensaje" maxlength=300></textarea>
+                        <textarea name="textArea" class="form-control w-200" id="contentsBox" placeholder="Escribe aquí tu mensaje" maxlength=300></textarea>
+                        <textarea name="contenido" class="form-control w-200" id="contentsBox" placeholder="Agregar link de contenido" maxlength=100></textarea>
                         <div class="container d-flex" style="padding: 1rem 0 0 0;">
                             <div id="leftBtn">
                                 <div id="charBadge" class="badge badge-pill badge-primary ml-2"

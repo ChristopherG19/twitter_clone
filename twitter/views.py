@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
 from . import connection
+import datetime
 from django.contrib.auth.views import LogoutView
 
 # Las vistas son como puntos intermedios donde manejaremos los datos y queries
@@ -59,7 +60,25 @@ def dmsP(request, contact):
 
     if user_node != None:
 
-        messages = connection.get_dms(user_node)          
+        if request.method == 'POST':
+            texto = request.POST.get('textArea')
+            contenido = request.POST.get('contenido')
+            dia = datetime.datetime.now().date()
+            hora = datetime.datetime.now().time()
+            lista = request.POST.get('lista')
+
+            if (len(texto) > 0):
+                data = {
+                    'sender': user_node['Usuario'],
+                    'reciever': contact,
+                    'texto': texto, 
+                    'contenido': contenido, 
+                    'dia': dia, 
+                    'hora': hora, 
+                    'lista': lista}
+                envio_mensaje = connection.sendMessage(data)
+
+        messages = connection.get_dms(user_node)
 
         context = {
             'userInfo': user_node,
