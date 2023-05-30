@@ -35,6 +35,24 @@ def home(request):
 
     return redirect('login')
 
+def dms(request):
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        messages = connection.get_dms(user_node)          
+
+        context = {
+            'userInfo': user_node,
+            'messages':messages,
+            'contacts':messages.keys
+            }
+        return render(request, 'twitter/dms.html', context)
+
+    return redirect('login')
+
+
 def register(request):
     # Se obtienen los valores de los input del html
     if request.method == 'POST':
