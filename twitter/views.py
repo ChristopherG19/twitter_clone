@@ -141,3 +141,43 @@ def login(request):
 def delete(request, tweet_id):
     deleteTwe = connection.delete_tweet(tweet_id)
     return redirect('home')
+
+def profile(request, username):
+    user_node = request.session.get('user') 
+    user = convert_datetime(connection.get_user_node(username))
+    if user != None:
+        cantidad_seguidos = connection.get_following(user["Usuario"]) 
+        cantidad_seguidores = connection.get_follower(user["Usuario"]) 
+        tw = connection.get_user_tweets(username)
+        tweets = []
+        for tweet_node in tw:
+            tweets.append(convert_datetime(tweet_node))
+            
+        context = {'userInfo': user_node, 'user':user, 'tweets':tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
+        return render(request, 'twitter/profile.html', context)
+        
+def edit_profile(request):
+    user_node = request.session.get('user')    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        name = request.POST.get('name')
+        descripcion = request.POST.get('descripcion')
+        
+        if username == '':
+            username = user_node['Usuario']
+        if password == '':
+            password = user_node['Password']
+        if name == '':
+            name = user_node['Nombre']
+        if descripcion == '':
+            descripcion = user_node['Descripcion']
+        
+        new_user = connection.edit_profile(user_node['Usuario'], name, username, password, descripcion)
+        if new_user != None:
+            user = convert_datetime(new_user)
+            request.session['user'] = user
+            return redirect('home')
+        
+    context = {'user':user_node}
+    return render(request, 'twitter/editar.html', context)

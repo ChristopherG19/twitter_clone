@@ -9,4 +9,6 @@ urlpatterns = [
     path('', views.login, name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('delete/<str:tweet_id>/', views.delete, name='delete'),
+    path('profile/<str:username>', views.profile, name='profile'),
+    path('edit/', views.edit_profile, name='edit'),
 ]

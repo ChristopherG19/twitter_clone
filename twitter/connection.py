@@ -39,6 +39,27 @@ def get_user(username, password):
             return user["u"]
         else:
             return None
+        
+def get_user_node(username):
+    with driver.session() as session:
+        query = "MATCH (u:Usuario {Usuario: $username}) RETURN u"
+        result = session.run(query, username=username, password=password)
+        user = result.single()
+        if user:
+            return user["u"]
+        else:
+            return None
+        
+def get_user_tweets(username):
+    tweets = []
+    with driver.session() as session:
+        query = "MATCH (usuario:Usuario {Usuario: $username})-[:Publica]->(tweet:Tweet) RETURN tweet;"
+        result = session.run(query, username=username)
+        for record in result:
+            tweets_node = record["tweet"]
+            tweets.append(tweets_node)
+            
+    return tweets
 
 def get_following(username):
     with driver.session() as session:
@@ -61,8 +82,6 @@ def get_follower(username):
             return user[ "NumeroDeUsuariosSeguidores"]
         else:
             return None
-
-
 
 def get_tweets():
     tweetsIDS = []
@@ -120,3 +139,17 @@ def delete_tweet(tweet_id):
     with driver.session() as session:
         query = "MATCH (tweet:Tweet {TID: $tid})-[r:Publica]-() DETACH DELETE tweet, r"
         result = session.run(query, tid=tweet_id)
+
+def edit_profile(user, name, username, pasw, desc):
+    with driver.session() as session:
+        query = """
+        MATCH (u:Usuario {Usuario: $userB})
+        SET u.Usuario = $new_user, u.Nombre = $new_name, u.Password = $passw, u.Descripcion = $new_desc
+        RETURN u
+        """
+        result = session.run(query, userB=user, new_user=username, new_name=name, passw=pasw, new_desc=desc)
+        user = result.single()
+        if user:
+            return user["u"]
+        else:
+            return None

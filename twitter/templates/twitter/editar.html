@@ -1,27 +1,35 @@
 {% extends 'twitter/layout.html' %}
-
 {% block content %}
 
 <div id="main" class="container-fluid d-flex">
-    <div class="">
+    <div class="twitter-login-box">
+        <br>
+        <br>
         <div id="inputTweetArea" class="tweet-wrap2">
             <div class="d-flex">
                 <div class="col-xs">
                     <!-- Image form -->
-                    <img src="../../static/img/tony.jpg" alt="" class="avator">
+                    <img src="https://toppng.com/uploads/preview/roger-berry-avatar-placeholder-11562991561rbrfzlng6h.png" alt="" class="avator">
                     <!-- Formulario -->
                 </div>
-
                 <!-- Formulario -->
-                <form class="col pr-0" method="post" enctype="multipart/form-data">
+                <form method="post">
+                    {% csrf_token %}
                     <div class="input-wrapper">
-                        <label>Nombre</label>
+                        <span for="name-id">Nombre</span>
+                        <input type='text' name='name' id='name-id' placeholder="{{user.Nombre}}" style="width: 500px;">
                     </div>
                     <div class="input-wrapper">
-                        <label for="user-name-id">Username</label>
+                        <span for="user-name-id">Username</span>
+                        <input type='text' name='username' id='user-name-id' placeholder="{{user.Usuario}}">
                     </div>
                     <div class="input-wrapper">
-                        <label>Bio</label>
+                        <span for="password-id">Password</span>
+                        <input type='text' name='password' id='password-id' placeholder="{{user.Password}}">
+                    </div>
+                    <div class="input-wrapper">
+                        <span for="desc-id">Descripcion</span>
+                        <input type='text' name='descripcion' id='desc-id' placeholder="{{user.Descripcion}}">
                     </div>
                     <div class="input-wrapper">
                     </div>
