@@ -1,4 +1,5 @@
 from neo4j import GraphDatabase
+import datetime
 
 uri = 'neo4j+s://f818cdff.databases.neo4j.io'
 username = 'neo4j'
@@ -57,17 +58,19 @@ def get_dms(user):
 
         for record in result:
 
+            m_time = record['r']['hora'].to_native().strftime("%I:%M:%S %p")
+
             if record['a']['Usuario'] == user['Usuario']: 
                 exists = messages.get(record['b']['Usuario'])
                 if (exists is not None):
                     tempArr = []
                     for el in messages[record['b']['Usuario']]:
                         tempArr.append(el)
-                    tempArr.append([record['r'], record['a']['Usuario']])
+                    tempArr.append([record['r'], record['a']['Usuario'], m_time])
                     messages[record['b']['Usuario']] = tempArr
                 else:
                     tempArr = []
-                    tempArr.append([record['r'], record['a']['Usuario']])
+                    tempArr.append([record['r'], record['a']['Usuario'], m_time])
                     messages[record['b']['Usuario']] = tempArr
 
             else: 
@@ -76,11 +79,11 @@ def get_dms(user):
                     tempArr = []
                     for el in messages[record['a']['Usuario']]:
                         tempArr.append(el)
-                    tempArr.append([record['r'], record['a']['Usuario']])
+                    tempArr.append([record['r'], record['a']['Usuario'], m_time])
                     messages[record['a']['Usuario']] = tempArr
                 else:
                     tempArr = []
-                    tempArr.append([record['r'], record['a']['Usuario']])
+                    tempArr.append([record['r'], record['a']['Usuario'], m_time])
                     messages[record['a']['Usuario']] = tempArr
 
     return messages
@@ -88,40 +91,80 @@ def get_dms(user):
 def sendMessage(data):
 
     with driver.session() as session:
-        if (data['contenido']) is not None:
-            query = (
-                "MATCH (a:Usuario), (b:Usuario) "
-                "WHERE a.Usuario = $userA AND b.Usuario = $userB "
-                "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido}]->(b) "
-                "RETURN a, b "
-            )
+        if (len(data['links']) > 0):
+            if (data['contenido']) is not None:
+                query = (
+                    "MATCH (a:Usuario), (b:Usuario) "
+                    "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+                    "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido, Links:$links}]->(b) "
+                    "RETURN a, b "
+                )
 
-            session.run(
-                query, 
-                userA = data['sender'], 
-                userB = data['reciever'], 
-                text = data['texto'], 
-                dia = data['dia'],
-                hora = data['hora'],
-                contenido = data['contenido']
-            )
+                session.run(
+                    query, 
+                    userA = data['sender'], 
+                    userB = data['reciever'], 
+                    text = data['texto'], 
+                    dia = data['dia'],
+                    hora = data['hora'],
+                    contenido = data['contenido'],
+                    links = data['links']
+                )
 
+            else:
+                query = (
+                    "MATCH (a:Usuario), (b:Usuario) "
+                    "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+                    "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Links:$links}]->(b) "
+                    "RETURN a, b "
+                )
+
+                session.run(
+                    query, 
+                    userA = data['sender'], 
+                    userB = data['reciever'], 
+                    text = data['texto'], 
+                    dia = data['dia'],
+                    hora = data['hora'],
+                    links = data['links']
+                )
+        
         else:
-            query = (
-                "MATCH (a:Usuario), (b:Usuario) "
-                "WHERE a.Usuario = $userA AND b.Usuario = $userB "
-                "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Links:$links}]->(b) "
-                "RETURN a, b "
-            )
+            if (data['contenido']) is not None:
+                query = (
+                    "MATCH (a:Usuario), (b:Usuario) "
+                    "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+                    "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Contenido:$contenido}]->(b) "
+                    "RETURN a, b "
+                )
 
-            session.run(
-                query, 
-                userA = data['sender'], 
-                userB = data['reciever'], 
-                text = data['texto'], 
-                dia = data['dia'],
-                hora = data['hora'],
-            )
+                session.run(
+                    query, 
+                    userA = data['sender'], 
+                    userB = data['reciever'], 
+                    text = data['texto'], 
+                    dia = data['dia'],
+                    hora = data['hora'],
+                    contenido = data['contenido']
+                )
+
+            else:
+                query = (
+                    "MATCH (a:Usuario), (b:Usuario) "
+                    "WHERE a.Usuario = $userA AND b.Usuario = $userB "
+                    "MERGE (a)-[r:DM {Texto:$text, Dia:$dia, hora:$hora, Links:$links}]->(b) "
+                    "RETURN a, b "
+                )
+
+                session.run(
+                    query, 
+                    userA = data['sender'], 
+                    userB = data['reciever'], 
+                    text = data['texto'], 
+                    dia = data['dia'],
+                    hora = data['hora'],
+                )
+
 
         
             

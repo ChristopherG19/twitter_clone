@@ -15,7 +15,7 @@
                     style="text-decoration: none;color: #657787;">{{contact}}</a></li>
                 {% endfor %}
                 <li class="list-group-item"><a href=""
-                        style="text-decoration: none;color: #657787;">Nueva conversación</a></li>
+                        style="text-decoration: none;color: #657787;">Nuevo Chat</a></li>
             </ul>
         </div>
     </div>
@@ -34,21 +34,27 @@
                         {% for message in messages %}
                             {% if actual_contact == message.1 %}
                             <div style="background: rgb(205, 248, 249); border-radius: 5px; border: none;" class="mensaje-enviado">
-                                <p>{{message.1}} ({{message.0.Dia}}:{{message.0.hora}})<br>
+                                <p>{{message.1}} <span>{{message.0.Dia}}:{{message.2}}</span><br>
                                     {{message.0.Texto}}
                                 </p>
                                 {% if message.0.Contenido %}
-                                <p>Attachment: {{message.0.Contenido}}</p>
+                                <p>Enlace: {{message.0.Contenido}}</p>
                                 {% endif %}
+                                {% for link in message.0.Links %}
+                                <p>Archivo: {{link}}</p>
+                                {% endfor %}
                             </div>
                             {% else %}
                             <div style="background: rgb(221, 249, 230); border-radius: 5px; border: none;" class="mensaje-enviado">
-                                <p>{{message.1}} ({{message.0.Dia}}:{{message.0.hora}})<br>
+                                <p>{{message.1}} <span>{{message.0.Dia}}:{{message.2}}</span><br>
                                     {{message.0.Texto}}
                                 </p>
                                 {% if message.0.Contenido %}
-                                <p>Attachment: {{message.0.Contenido}}</p>
+                                <p>Enlace: {{message.0.Contenido}}</p>
                                 {% endif %}
+                                {% for link in message.0.Links %}
+                                <p>Archivo: {{link}}</p>
+                                {% endfor %}
                             </div>
                             {% endif %}
                         
@@ -65,7 +71,17 @@
                         {% csrf_token %}
     
                         <textarea name="textArea" class="form-control w-200" id="contentsBox" placeholder="Escribe aquí tu mensaje" maxlength=300></textarea>
-                        <textarea name="contenido" class="form-control w-200" id="contentsBox" placeholder="Agregar link de contenido" maxlength=100></textarea>
+                        <textarea name="contenido" class="form-control w-200" id="contentsBox" placeholder="Agregar enlace" maxlength=100></textarea>
+                        <div>
+                            <div>
+                                <textarea name="link1" class="form-control w-200" id="contentsBox" placeholder="Archivo 1" maxlength=100></textarea>
+                                <textarea name="link2" class="form-control w-200" id="contentsBox" placeholder="Archivo 2" maxlength=100></textarea>
+                            </div>
+                            <div>
+                                <textarea name="link3" class="form-control w-200" id="contentsBox" placeholder="Archivo 3" maxlength=100></textarea>
+                                <textarea name="link4" class="form-control w-200" id="contentsBox" placeholder="Archivo 4" maxlength=100></textarea>
+                            </div>
+                        </div>
                         <div class="container d-flex" style="padding: 1rem 0 0 0;">
                             <div id="leftBtn">
                                 <div id="charBadge" class="badge badge-pill badge-primary ml-2"
@@ -85,8 +101,8 @@
                 {% else %}
                 <div class="tweet-header">
                     <div class="tweet-header-info">
-                        <h1>Select a message</h1>
-                        Choose from your existing conversations, start a new one, or just keep swimming.
+                        <h1>Selecciona un mensaje</h1>
+                        Elige de tus conversaciones existentes, inicia una nueva ingresando el nombre en el link, o simplemente continúa con tu día :D
                     </div>
                 </div>
                 {% endif %}

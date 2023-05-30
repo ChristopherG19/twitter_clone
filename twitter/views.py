@@ -66,6 +66,17 @@ def dmsP(request, contact):
             dia = datetime.datetime.now().date()
             hora = datetime.datetime.now().time()
             lista = request.POST.get('lista')
+            
+            link1 = request.POST.get('link1')
+            link2 = request.POST.get('link2')
+            link3 = request.POST.get('link3')
+            link4 = request.POST.get('link4')
+
+            links = []
+            if len(link1) > 0: links.append(link1)
+            if len(link2) > 0: links.append(link2)
+            if len(link3) > 0: links.append(link3)
+            if len(link4) > 0: links.append(link4)
 
             if (len(texto) > 0):
                 data = {
@@ -75,18 +86,32 @@ def dmsP(request, contact):
                     'contenido': contenido, 
                     'dia': dia, 
                     'hora': hora, 
-                    'lista': lista}
+                    'lista': lista, 
+                    'links':links
+                    }
                 envio_mensaje = connection.sendMessage(data)
 
         messages = connection.get_dms(user_node)
 
-        context = {
-            'userInfo': user_node,
-            'messages':messages[contact],
-            'contacts':messages.keys,
-            'actual_contact': contact
-            }
-        return render(request, 'twitter/dms.html', context)
+        if messages.get(contact) is not None:
+
+            context = {
+                'userInfo': user_node,
+                'messages':messages[contact],
+                'contacts':messages.keys,
+                'actual_contact': contact
+                }
+            return render(request, 'twitter/dms.html', context)
+        
+        else:
+            messages[contact] = []
+            context = {
+                'userInfo': user_node,
+                'messages':messages[contact],
+                'contacts':messages.keys,
+                'actual_contact': contact
+                }
+            return render(request, 'twitter/dms.html', context)
 
     return redirect('login')
 
