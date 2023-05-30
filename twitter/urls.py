@@ -13,4 +13,6 @@ urlpatterns = [
     path('edit/', views.edit_profile, name='edit'),
     path('follow/<str:username>/', views.follow, name='follow'),
     path('unfollow/<str:username>/', views.unfollow, name='unfollow'),
+    path('dms', views.dms, name='dms'),
+    path('dms/<str:contact>/', views.dmsP, name='dmsP')
 ]

@@ -85,6 +85,86 @@ def home(request):
 
     return redirect('login')
 
+def dms(request):
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        messages = connection.get_dms(user_node)
+
+        context = {
+            'userInfo': user_node,
+            'messages':messages,
+            'contacts':messages.keys,
+            'actual_contact': None
+            }
+        return render(request, 'twitter/dms.html', context)
+
+    return redirect('login')
+
+def dmsP(request, contact):
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        if request.method == 'POST':
+            texto = request.POST.get('textArea')
+            contenido = request.POST.get('contenido')
+            dia = datetime.datetime.now().date()
+            hora = datetime.datetime.now().time()
+            lista = request.POST.get('lista')
+            
+            link1 = request.POST.get('link1')
+            link2 = request.POST.get('link2')
+            link3 = request.POST.get('link3')
+            link4 = request.POST.get('link4')
+
+            links = []
+            if len(link1) > 0: links.append(link1)
+            if len(link2) > 0: links.append(link2)
+            if len(link3) > 0: links.append(link3)
+            if len(link4) > 0: links.append(link4)
+
+            if (len(texto) > 0):
+                data = {
+                    'sender': user_node['Usuario'],
+                    'reciever': contact,
+                    'texto': texto, 
+                    'contenido': contenido, 
+                    'dia': dia, 
+                    'hora': hora, 
+                    'lista': lista, 
+                    'links':links
+                    }
+                envio_mensaje = connection.sendMessage(data)
+
+        messages = connection.get_dms(user_node)
+
+        if messages.get(contact) is not None:
+
+            context = {
+                'userInfo': user_node,
+                'messages':messages[contact],
+                'contacts':messages.keys,
+                'actual_contact': contact
+                }
+            return render(request, 'twitter/dms.html', context)
+        
+        else:
+            messages[contact] = []
+            context = {
+                'userInfo': user_node,
+                'messages':messages[contact],
+                'contacts':messages.keys,
+                'actual_contact': contact
+                }
+            return render(request, 'twitter/dms.html', context)
+
+    return redirect('login')
+
+
 def register(request):
     # Se obtienen los valores de los input del html
     if request.method == 'POST':
