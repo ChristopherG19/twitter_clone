@@ -133,7 +133,8 @@ def home(request):
                     else:
                         if(len(hashtags)>0):
                             publicacion = connection.public_tweet(user_node['Nombre'], properties, None, hashtags)
-                        publicacion = connection.public_tweet(user_node['Nombre'], properties)
+                        else:
+                            publicacion = connection.public_tweet(user_node['Nombre'], properties)
 
                 if publicacion:
                     tw = connection.get_tweets()
