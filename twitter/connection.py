@@ -132,7 +132,6 @@ def public_tweet(user, tweet):
         else:
             return None
 
-
 def delete_tweet(tweet_id):
     with driver.session() as session:
         query = "MATCH (tweet:Tweet {TID: $tid})-[r:Publica]-() DETACH DELETE tweet, r"
@@ -190,7 +189,7 @@ def unfollow(userA, userB):
         MATCH (u:Usuario {Usuario: $usuarioA})-[s:Sigue]->(w:Usuario {Usuario: $usuarioB}) 
         DETACH DELETE s;
         """
-        result = session.run(query, usuarioA=userA, usuarioB=userB)
+        session.run(query, usuarioA=userA, usuarioB=userB)
 
 def get_following_list(username):
     users = []
@@ -202,48 +201,7 @@ def get_following_list(username):
             users.append(tweets_node)
             
     return users
-from neo4j import GraphDatabase
-import datetime
 
-uri = 'neo4j+s://f818cdff.databases.neo4j.io'
-username = 'neo4j'
-password = 'MJGh4EdPtnhBp9VeB85_iV1RIma57HuFea9u8-vKkXI'
-
-driver = GraphDatabase.driver(uri, auth=(username, password))
-
-# Aquí van todos los queries
-
-def create_user(name, username, email, password, fecha_nacimiento, descripcion, verificado):
-    with driver.session() as session:
-        query = """
-        MERGE (u:Usuario {
-            Nombre: $name,
-            Usuario: $username,
-            Correo: $email,
-            Password: $password,
-            FechaNacimiento: $fecha_n,
-            Descripcion: $desc,
-            Verificado: $verified
-        })
-        RETURN u
-        """
-        result = session.run(query, name=name, username=username, email=email, password=password, fecha_n=fecha_nacimiento, desc=descripcion, verified=verificado)
-
-        if result.consume().counters.nodes_created > 0:
-            return get_user(username, password)
-        else:
-            return None
-        
-def get_user(username, password):
-    with driver.session() as session:
-        query = "MATCH (u:Usuario {Usuario: $username, Password: $password}) RETURN u"
-        result = session.run(query, username=username, password=password)
-        user = result.single()
-        if user:
-            return user["u"]
-        else:
-            return None
-        
 def get_dms(user):
     messages = {}
 
@@ -369,7 +327,24 @@ def sendMessage(data):
                     hora = data['hora'],
                 )
 
-
+def get_notifications_user(username):
+    noti = []
+    with driver.session() as session:
+        query = "MATCH (n:Notification)-[s:Notifica]->(u:Usuario {Usuario: $username}) RETURN n"
+        result = session.run(query, username=username)
+        for record in result:
+            tweets_node = record["n"]
+            noti.append(tweets_node)
             
+    return noti
+
+def change_visto(username, userM, tipo):
+    with driver.session() as session:
+        query = """
+        MATCH (n:Notification {UserMencionado: $userMen, Tipo: $typeN})-[:Notifica]->(u:Usuario {Usuario: $username})
+        SET n.Visto = true
+        """
+        session.run(query, userMen=userM, typeN=tipo, username=username)
+
 # No olvides cerrar la conexión al finalizar
 driver.close()

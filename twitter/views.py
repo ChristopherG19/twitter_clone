@@ -279,3 +279,31 @@ def unfollow(request, username):
     relationship = connection.unfollow(user_node['Usuario'], to_user['Usuario'])
 
     return redirect('home')
+
+def get_notifications(request):
+    user_node = request.session.get('user')
+    notis = []
+    nots = connection.get_notifications_user(user_node['Usuario'])
+    for n in nots:
+        notis.append(convert_datetime(n))
+    
+    context = {'userInfo': user_node, 'notifications':notis}
+    return render(request, 'twitter/notificaciones.html', context)
+
+
+def view_notification(request, tipo, userM):
+    user_node = request.session.get('user')
+    notis = []
+    nots = connection.get_notifications_user(user_node['Usuario'])
+    for n in nots:
+        temp = convert_datetime(n)
+        if(temp['Tipo'] == tipo and temp['UserMencionado'] == userM):
+            notis.append(convert_datetime(n))
+            
+    showDifferent = True
+    
+    change = connection.change_visto(user_node['Usuario'], userM, tipo)
+
+    context = {'userInfo': user_node, 'notifications': notis, 'show': showDifferent}
+    return render(request, 'twitter/notificaciones.html',context)
+
