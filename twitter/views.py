@@ -279,3 +279,21 @@ def unfollow(request, username):
     relationship = connection.unfollow(user_node['Usuario'], to_user['Usuario'])
 
     return redirect('home')
+
+def spaces(request):
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        messages = connection.get_dms(user_node)
+
+        context = {
+            'userInfo': user_node
+            }
+        return render(request, 'twitter/spaces.html', context)
+
+    return redirect('login')
+    
+
+    
