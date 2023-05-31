@@ -12,11 +12,11 @@
                 <form class="col pr-0" method="post">
                     {% csrf_token %}
                     <h2>Crear un Space</h2>
-                    <textarea class="form-control w-100" name="SpaceTitle" id="contentsBox" placeholder="Titulo" maxlength=140></textarea>
-                    <textarea class="form-control w-100" name="SpaceDesc" id="contentsBox" placeholder="Descripción" maxlength=140></textarea>
-                    <textarea class="form-control w-100" name="SpaceUbic" id="contentsBox" placeholder="Ubicación" maxlength=140></textarea>
-                    <textarea class="form-control w-100" name="SpaceCat" id="contentsBox" placeholder="Categoría" maxlength=140></textarea>
-                    <textarea class="form-control w-100" name="SpaceMult" id="contentsBox" placeholder="Multimedia" maxlength=140></textarea>
+                    <textarea class="form-control w-100" name="SpaceTitle" id="contentsBox" placeholder="Titulo" maxlength=140 style="height: 2.5rem;"></textarea>
+                    <textarea class="form-control w-100" name="SpaceDesc" id="contentsBox" placeholder="Descripción" maxlength=140 style="height: 2.5rem;"></textarea>
+                    <textarea class="form-control w-100" name="SpaceUbic" id="contentsBox" placeholder="Ubicación" maxlength=140 style="height: 2.5rem;"></textarea>
+                    <textarea class="form-control w-100" name="SpaceCat" id="contentsBox" placeholder="Categoría" maxlength=140 style="height: 2.5rem;"></textarea>
+                    <textarea class="form-control w-100" name="SpaceMult" id="contentsBox" placeholder="Multimedia" maxlength=140 style="height: 2.5rem;"></textarea>
                     <div class="container d-flex" style="padding: 1rem 0 0 0;">
 
                         <div id="rightBtn">
@@ -82,9 +82,9 @@
                         {% else %}
                         
                         {% if space.3 %}
-                        <button class="btn rounded-pill" style="width: 100%;">Participar</button>
-                        {% else %}
                         <button class="btn rounded-pill" style="width: 100%;">Finalizar</button>
+                        {% else %}
+                        <button class="btn rounded-pill" style="width: 100%;"><a style="color: white;" href="{% url 'spacesParticipate' space.2 %}">Participar</a></button>
                         {% endif %}
                         
                         {% endif %}

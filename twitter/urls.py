@@ -15,5 +15,6 @@ urlpatterns = [
     path('unfollow/<str:username>/', views.unfollow, name='unfollow'),
     path('dms', views.dms, name='dms'),
     path('dms/<str:contact>/', views.dmsP, name='dmsP'),
-    path('spaces', views.spaces, name='spaces')
+    path('spaces', views.spaces, name='spaces'),
+    path('spaces/<int:NID>', views.spacesParticipate, name='spacesParticipate' )
 ]

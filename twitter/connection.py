@@ -376,7 +376,6 @@ def getSpaces(user):
         )
 
         result = session.run(query)
-
         spaces = []
         for record in result:
 
@@ -392,9 +391,9 @@ def idHost(user, spaceID):
 
         query = (
             "MATCH (u:Usuario), (s:Space) "
-            "WHERE u.Usuario = $user and id(s) = $space "
+            "WHERE id(s) = $space "
             "MATCH (u) -[r:Crea] -> (s) "
-            "RETURN r "
+            "RETURN u "
         )
 
         result = session.run(
@@ -403,14 +402,10 @@ def idHost(user, spaceID):
             space = spaceID
         )
 
-        res = 0
         for record in result:
-            res += 1
 
-        if res > 0:
-            # Es el dueño
-            return True 
-        
+            if record['u']['Usuario'] == user['Usuario']: return True
+
     return False
 
 def createSpace(data):
@@ -436,7 +431,7 @@ def createSpace(data):
         for record in resultC:
             id = record['s'].id
 
-        print('NID: ', id)
+        print('NID: ', id, type(id))
         print('Usuario: ', data['usuario']['Usuario'])
 
         queryCC = (
@@ -452,6 +447,24 @@ def createSpace(data):
             userA = data['usuario']['Usuario'], 
             fecha = datetime.datetime.now()
 
+        )
+
+def interactua(userUsuario, spaceID):
+    with driver.session() as session:
+
+        query = (
+                "MATCH (a), (b:Usuario) "
+                "WHERE ID(a) = $SID AND b.Usuario = $userA "
+                "MERGE (a)<-[r:Interactua {Interaccion:$interaccion, HoraIngreso:$horaIngreso}]-(b) "
+                "RETURN a, b "
+            )
+        
+        result = session.run(
+            query, 
+            SID = spaceID, 
+            userA = userUsuario, 
+            interaccion = True,
+            horaIngreso = datetime.datetime.now()
         )
 
             
