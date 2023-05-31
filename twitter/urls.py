@@ -17,5 +17,7 @@ urlpatterns = [
     path('dms/<str:contact>/', views.dmsP, name='dmsP'),
     path('notifications/', views.get_notifications, name='notifications'),
     path('notificationsB/<str:tipo>/<str:userM>/', views.view_notification, name='notificationsB'),
-    path('comments/<str:TID>/', views.comments, name='comments')
+    path('comments/<str:TID>/', views.comments, name='comments'),
+    path('liking/<str:username>/<str:TID>', views.liking, name='liking'),
+    path('unliking/<str:username>/<str:TID>', views.unliking, name='unliking')
 ]

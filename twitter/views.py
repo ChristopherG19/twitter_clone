@@ -53,8 +53,9 @@ def home(request):
     for tweet_node in tw:
         cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
         cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
+        reacciones_likes = connection.get_tweet_likes_usres(tweet_node[1]["TID"])
         # print(type(tweet_node[1]["TID"]))
-        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
+        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios, reacciones_likes))
 
 
     # Se obtiene el usuario activo
@@ -80,8 +81,9 @@ def home(request):
                     for tweet_node in tw:
                         cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
                         cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
+                        reacciones_likes = connection.get_tweet_likes_usres(tweet_node[1]["TID"])
                         # print(type(tweet_node[1]["TID"]))
-                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
+                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios, reacciones_likes))
                         
                     context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
                     return render(request, 'twitter/home.html', context)
@@ -243,7 +245,9 @@ def profile(request, username):
         for tweet_node in tw:
             cantidad_likes = connection.get_likes(tweet_node["TID"])
             cantidad_comentarios = connection.get_comments(tweet_node["TID"])
-            tweets.append((convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios))
+            reacciones_likes = connection.get_tweet_likes_usres(tweet_node["TID"])
+            # print(type(tweet_node[1]["TID"]))
+            tweets.append((convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios, reacciones_likes))
         # print(type(tweet_node[1]["TID"]))
         # tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
 
@@ -325,7 +329,9 @@ def comments(request, TID):
         cantidad_likes = connection.get_likes(tweet_node["TID"])
         cantidad_comentarios = connection.get_comments(tweet_node["TID"])
         usuario_encontrad = connection.get_usuario_from_tweet(tweet_node["TID"])
-        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios))
+        reacciones_likes = connection.get_tweet_likes_usres(tweet_node["TID"])
+
+        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios,  reacciones_likes))
 
     # Se obtiene el usuario activo
     user_node = request.session.get('user')
@@ -349,7 +355,8 @@ def comments(request, TID):
                     for tweet_node in tw:
                         cantidad_likes = connection.get_likes(tweet_node["TID"])
                         usuario_encontrad = connection.get_usuario_from_tweet(tweet_node["TID"])
-                        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios))
+                        reacciones_likes = connection.get_tweet_likes_usres(tweet_node["TID"])
+                        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios, reacciones_likes))
 
 
                     context = { 'userInfo': user_node,'tweets':tweets}
@@ -359,3 +366,11 @@ def comments(request, TID):
         return render(request, 'twitter/comments.html', context)
 
     return redirect('login')
+
+def liking(request, username, TID):
+    deleteTwe = connection.add_reaction_like(username, TID)
+    return redirect('home')
+
+def unliking(request, username, TID):
+    deleteTwe = connection.delete_reaction_like(username, TID)
+    return redirect('home')

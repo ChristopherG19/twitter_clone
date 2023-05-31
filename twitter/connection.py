@@ -381,6 +381,60 @@ def tweet_responde_tweet(TID1, TID2):
         else:
             return None
 
+def add_reaction_like(username, TID):
+    
+    fecha = datetime.datetime.now()
+    cfs = random.choice([True, False])
+    
+    with driver.session() as session:
+        query = """
+        MATCH (usuario:Usuario {Usuario: $username})
+        MATCH (tweet:Tweet {TID: $TID})
+        MERGE (usuario)-[r:Reacciona]->(tweet)
+        SET r.Fecha = date(),
+            r.Hora = time(),
+            r.Like = true
+        RETURN r
+        """
+        result = session.run(query, username=username, TID=TID)
+        relation_created = result.single()
+        
+        if result:
+            newfecha = fecha = datetime.datetime.now().date()
+            hora_actual = datetime.datetime.now().time()
+            bol = False
+
+            query = """
+            MATCH (a:Usuario {Usuario: $usuarioB})
+            MERGE (n:Notification {
+                Tipo: 'like',
+                Fecha: $fecha,
+                Hora: $hora,
+                Visto: $val,
+                UserMencionado: $userM,
+                Trending: $val2
+            })-[:Notifica]->(a)
+            """
+            result = session.run(query, usuarioB=get_usuario_from_tweet(TID)["Usuario"], fecha=newfecha, hora=hora_actual, val=bol, userM=username, val2=bol)
+            
+def delete_reaction_like(username, TID):
+
+    with driver.session() as session:
+        query = """
+        MATCH (usuario:Usuario {Usuario: $username})
+        MATCH (tweet:Tweet {TID: $TID})
+        MERGE (usuario)-[r:Reacciona]->(tweet)
+        SET r.Fecha = date(),
+            r.Hora = time(),
+            r.Like = false
+        RETURN r
+        """
+        result = session.run(query, username=username, TID=TID)
+        relation_created = result.single()
+        if relation_created:
+            return relation_created["r"]
+        else:
+            return None
 
 def get_usuario_from_tweet(TID):
     with driver.session() as session:
@@ -410,6 +464,17 @@ def change_visto(username, userM, tipo):
         SET n.Visto = true
         """
         session.run(query, userMen=userM, typeN=tipo, username=username)
+
+def get_tweet_likes_usres(TID):
+    tweets = []
+    with driver.session() as session:
+        query = "MATCH (:Tweet {TID: $TID})<-[:Reacciona {Like: true}]-(usuario:Usuario) RETURN usuario"
+        result = session.run(query, TID=TID)
+        for record in result:
+            tweets_node = record["usuario"]["Usuario"]
+            tweets.append(tweets_node)
+            
+    return tweets
 
 # No olvides cerrar la conexión al finalizar
 driver.close()
