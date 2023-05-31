@@ -510,6 +510,5 @@ def interactua(userUsuario, spaceID):
             horaIngreso = datetime.datetime.now()
         )
 
-            
 # No olvides cerrar la conexión al finalizar
 driver.close()
