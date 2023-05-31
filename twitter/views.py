@@ -286,9 +286,7 @@ def spaces(request):
 
     if user_node != None:
 
-        messages = connection.get_dms(user_node)
-
-        sp = connection.getSpaces()
+        sp = connection.getSpaces(user_node)
 
         context = {
             'userInfo': user_node,

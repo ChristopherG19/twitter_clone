@@ -68,6 +68,11 @@
 
                         <p>{{ space.1.Desc }}</p>
                         <div>
+                            {% if space.1.Multimedia%}
+                            <p>{{space.1.Multimedia}}</p>
+                            {% endif %}
+                        </div>
+                        <div>
                             {% if space.1.HoraFinalizada %}
                             <p>
                                 FINALIZADO
@@ -84,6 +89,9 @@
 
                         {% else %}
                         <button class="btn rounded-pill" style="width: 100%;">Participar</button>
+                        {% if space.3 %}
+                        {% endif %}
+                        <button class="btn rounded-pill" style="width: 100%;">Finalizar</button>
                         {% endif %}
                     </div>
                 </div>

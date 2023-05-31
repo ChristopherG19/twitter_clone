@@ -363,7 +363,7 @@ def sendMessage(data):
                 )
 
 
-def getSpaces():
+def getSpaces(user):
 
     with driver.session() as session:
 
@@ -378,16 +378,40 @@ def getSpaces():
         result = session.run(query)
 
         spaces = []
-
         for record in result:
-            print('\nusuario, ', record['u'])
-            print('\nrelacion, ', record['r'])
-            print('\nspace', record['s'])
 
-            spaces.append([record['u'],record['s']])
+            if idHost(user, record['s'].id): host = True 
+            else: host = False
+
+            spaces.append([record['u'],record['s'], record['s'].id, host])
 
         return spaces
+    
+def idHost(user, spaceID):
+    with driver.session() as session:
 
+        query = (
+            "MATCH (u:Usuario), (s:Space) "
+            "WHERE u.Usuario = $user and id(s) = $space "
+            "MATCH (u) -[r:Crea] -> (s) "
+            "RETURN r "
+        )
+
+        result = session.run(
+            query, 
+            user = user, 
+            space = spaceID
+        )
+
+        res = 0
+        for record in result:
+            res += 1
+
+        if res > 0:
+            # Es el dueño
+            return True 
+        
+    return False
             
 # No olvides cerrar la conexión al finalizar
 driver.close()
