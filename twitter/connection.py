@@ -44,7 +44,7 @@ def get_user(username, password):
 def get_user_node(username):
     with driver.session() as session:
         query = "MATCH (u:Usuario {Usuario: $username}) RETURN u"
-        result = session.run(query, username=username, password=password)
+        result = session.run(query, username=username)
         user = result.single()
         if user:
             return user["u"]
@@ -106,11 +106,43 @@ def get_tweets():
                     
     return tweets
 
-def public_tweet(user, tweet):
+def public_tweet(user, tweet, usersTags=None, hashTags=None):
     views, fecha, contestar, text, visibility, tid = tweet
     dis = random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi'])
 
     with driver.session() as session:
+        
+        if usersTags:
+            for userB in usersTags:
+                newfecha = fecha = datetime.datetime.now().date()
+                hora_actual = datetime.datetime.now().time()
+                bol = False
+                
+                query = """
+                MATCH (a:Usuario {Usuario: $usuarioB})
+                MERGE (n:Notification {
+                    Tipo: 'mention',
+                    Fecha: $fecha,
+                    Hora: $hora,
+                    Visto: $val,
+                    UserMencionado: $userM,
+                    Trending: $val2
+                })-[:Notifica]->(a)
+                """
+                result = session.run(query, usuarioB=userB, fecha=newfecha, hora=hora_actual, val=bol, userM=user, val2=bol)
+        
+        if hashTags:
+            for has in hashTags:
+                query = """
+                MATCH (h:Hashtag {Nombre: $name})
+                SET h.Cantidad_t = h.Cantidad_t + 1
+                SET h.Trending = CASE
+                    WHEN h.Cantidad_t > 5 THEN true
+                    ELSE false
+                    END
+                """
+                session.run(query, name=has)
+        
         query = """
         MATCH (u:Usuario {Nombre: $userN})
         MERGE (u)-[:Publica {Ubicacion: 'Guatemala', Dispositivo: $dispo}]->(t:Tweet {
@@ -121,14 +153,16 @@ def public_tweet(user, tweet):
             Visibility: $visibilityN,
             TID: $tidN
         })
+        RETURN t
         """
         result = session.run(query, userN=user, dispo=dis,
                             viewsN=views, fechaN=fecha,
                             contestarN=contestar, textN=text,
                             visibilityN=visibility, tidN=tid)
 
+        tweet = result.single()
         if result.consume().counters.nodes_created > 0:
-            return True
+            return (True, tweet["t"])
         else:
             return None
 
@@ -410,6 +444,36 @@ def change_visto(username, userM, tipo):
         SET n.Visto = true
         """
         session.run(query, userMen=userM, typeN=tipo, username=username)
+
+def get_hashtag_node(name):
+    with driver.session() as session:
+        query = "MATCH (h:Hashtag {Nombre: $name}) RETURN h"
+        result = session.run(query, name=name)
+        hashtag = result.single()
+        if hashtag:
+            return hashtag["h"]
+        else:
+            return None
+            
+def create_hashtag(hash):
+    with driver.session() as session:
+        explo = random.choice([True, False])
+        cant_t = 1
+        cat = "User Creation"
+        vistas = 1
+        trend = False
+        newfecha = datetime.datetime.now()
+        
+        query = "MERGE (:Hashtag {Nombre:$nombre, Categoria:$categoria, FechaCreacion:$fechaCreacion, Trending:$trending, Explored:$explored, Cantidad_t:$cantidad_t, Vistas:$vistas})"
+        result = session.run(query, nombre=hash, categoria=cat, 
+                    fechaCreacion=newfecha, trending=trend, 
+                    explored=explo, cantidad_t=cant_t,
+                    vistas=vistas)
+        
+        if result.consume().counters.nodes_created > 0:
+            return True
+        else:
+            return None
 
 # No olvides cerrar la conexión al finalizar
 driver.close()

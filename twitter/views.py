@@ -3,6 +3,7 @@ from . import connection
 import datetime
 import time
 import random
+import re
 
 # Las vistas son como puntos intermedios donde manejaremos los datos y queries
 
@@ -24,16 +25,19 @@ def SSnowflake():
 def convert_datetime(node):
     tup = list(node.items())
     
-    fecha_nacimiento = None
+    new_fecha = None
     for tupla in tup:
         if tupla[0] == 'FechaNacimiento':
-            fecha_nacimiento = tupla[1]
+            new_fecha = tupla[1]
             
         elif tupla[0] == 'Fecha':
-            fecha_nacimiento = tupla[1]
+            new_fecha = tupla[1]
+            
+        elif tupla[0] == 'FechaCreacion':
+            new_fecha = tupla[1]
             
     # Convertir el objeto DateTime de Neo4j a un objeto datetime de Python
-    fecha_python = fecha_nacimiento.to_native()
+    fecha_python = new_fecha.to_native()
     
     # Modificar el valor de 'FechaNacimiento'
     for i in range(len(tup)):
@@ -43,6 +47,19 @@ def convert_datetime(node):
         
         elif tup[i][0] == 'Fecha':
             tup[i] = ('Fecha', datetime.datetime.strptime(str(fecha_python), "%Y-%m-%d"))
+            break
+        
+        elif tup[i][0] == 'FechaCreacion':
+            fecha_neo4j = tup[i][1]
+            fecha_python = datetime.datetime(
+                fecha_neo4j.year,
+                fecha_neo4j.month,
+                fecha_neo4j.day,
+                fecha_neo4j.hour,
+                fecha_neo4j.minute,
+                fecha_neo4j.second
+            )
+            tup[i] = ('FechaCreacion', fecha_python)
             break
       
     return dict(tup)
@@ -70,21 +87,63 @@ def home(request):
             text = request.POST.get('textArea')
             visibility = random.choice([True, False])
             tid = "{:.0f}".format(SSnowflake())
+            
+            # Obtener las menciones de usuario
+            usuarios = re.findall(r'@(\w+)', text)
+            # Obtener los hashtags
+            hashtags = re.findall(r'#(\w+)', text)
+            
             if(len(text) > 0):
                 properties = [views, fecha, contestar, text, visibility, tid]
-                publicacion = connection.public_tweet(user_node['Nombre'], properties)
-
-                if publicacion:
-                    tw = connection.get_tweets()
-                    tweets = []
-                    for tweet_node in tw:
-                        cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
-                        cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
-                        # print(type(tweet_node[1]["TID"]))
-                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
+                
+                veri = True
+                if (len(usuarios) > 0):
+                    tempComp = []
+                    for user in usuarios:
+                        temp = convert_datetime(connection.get_user_node(user))
+                        if temp != None:
+                            tempComp.append(True)
+                        else:
+                            tempComp.append(False)
+                            
+                    if not all(tempComp):
+                        veri = False
                         
-                    context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
-                    return render(request, 'twitter/home.html', context)
+                if(len(hashtags) > 0):
+                    tempNamesH = []
+                    for hash in hashtags:
+                        t = connection.get_hashtag_node(hash)
+                        if (t == None):
+                            res = connection.create_hashtag(hash)
+                            if res:
+                                tempNamesH.append(hash)
+                        else:
+                            temp = convert_datetime(t)
+                            if temp != None:
+                                tempNamesH.append(hash)
+                            
+                                           
+                if(veri): 
+                    if(len(usuarios)>0):
+                        if(len(hashtags)>0):
+                            publicacion = connection.public_tweet(user_node['Nombre'], properties, usuarios, hashtags)
+                        else:
+                            publicacion = connection.public_tweet(user_node['Nombre'], properties, usuarios)
+                    else:
+                        if(len(hashtags)>0):
+                            publicacion = connection.public_tweet(user_node['Nombre'], properties, None, hashtags)
+                        publicacion = connection.public_tweet(user_node['Nombre'], properties)
+
+                    if publicacion[0]:
+                        tw = connection.get_tweets()
+                        tweets = []
+                        for tweet_node in tw:
+                            cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
+                            cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
+                            tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
+                            
+                        context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
+                        return render(request, 'twitter/home.html', context)
             
         context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
         return render(request, 'twitter/home.html', context)
