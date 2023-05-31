@@ -8,27 +8,19 @@
 
         <div id="inputTweetArea" class="tweet-wrap">
             <div class="d-flex">
-                <div class="col-xs">
-                    <!-- Image form -->
-                    <img src="https://toppng.com/uploads/preview/roger-berry-avatar-placeholder-11562991561rbrfzlng6h.png" alt=""
-                        class="avator">
-                    <!-- Formulario -->
-                </div>
-
                 <!-- Formulario -->
                 <form class="col pr-0" method="post">
                     {% csrf_token %}
-                    <textarea class="form-control w-100" name="textArea" id="contentsBox" placeholder="¡¿Qué está pasando?!" maxlength=140></textarea>
+                    <h2>Crear un Space</h2>
+                    <textarea class="form-control w-100" name="SpaceTitle" id="contentsBox" placeholder="Titulo" maxlength=140></textarea>
+                    <textarea class="form-control w-100" name="SpaceDesc" id="contentsBox" placeholder="Descripción" maxlength=140></textarea>
+                    <textarea class="form-control w-100" name="SpaceUbic" id="contentsBox" placeholder="Ubicación" maxlength=140></textarea>
+                    <textarea class="form-control w-100" name="SpaceCat" id="contentsBox" placeholder="Categoría" maxlength=140></textarea>
+                    <textarea class="form-control w-100" name="SpaceMult" id="contentsBox" placeholder="Multimedia" maxlength=140></textarea>
                     <div class="container d-flex" style="padding: 1rem 0 0 0;">
-                        <div id="leftBtn">
-                            <div id="charBadge" class="badge badge-pill badge-primary ml-2"
-                                style="display: flex;align-items: center;width: 50%;justify-content: center;">
-                                <div id="charCountArea">140</div>
-                            </div>
-                        </div>
 
                         <div id="rightBtn">
-                            <button class="btn rounded-pill" style="width: 100%;">Tweet</button>
+                            <button class="btn rounded-pill" style="width: 100%;">Crear Space</button>
                         </div>
                     </div>
                 </form>
@@ -88,10 +80,13 @@
                         {% if space.1.HoraFinalizada %}
 
                         {% else %}
-                        <button class="btn rounded-pill" style="width: 100%;">Participar</button>
+                        
                         {% if space.3 %}
-                        {% endif %}
+                        <button class="btn rounded-pill" style="width: 100%;">Participar</button>
+                        {% else %}
                         <button class="btn rounded-pill" style="width: 100%;">Finalizar</button>
+                        {% endif %}
+                        
                         {% endif %}
                     </div>
                 </div>

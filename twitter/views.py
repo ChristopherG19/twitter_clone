@@ -286,6 +286,25 @@ def spaces(request):
 
     if user_node != None:
 
+        if request.method == 'POST':
+            SpaceTitle = request.POST.get('SpaceTitle')
+            SpaceDesc = request.POST.get('SpaceDesc')
+            SpaceUbic = request.POST.get('SpaceUbic')
+            SpaceCat = request.POST.get('SpaceCat')
+            SpaceMult = request.POST.get('SpaceMult')
+
+            if (len(SpaceTitle) > 0 and len(SpaceDesc) and len(SpaceUbic) and len(SpaceCat) and len(SpaceMult)):
+                data = {
+                    'categoria' : SpaceCat, 
+                    'ubicacion' : SpaceUbic, 
+                    'titulo' : SpaceTitle, 
+                    'desc': SpaceDesc, 
+                    'multimedia': SpaceMult, 
+                    'usuario': user_node
+                }
+
+                connection.createSpace(data)
+
         sp = connection.getSpaces(user_node)
 
         context = {

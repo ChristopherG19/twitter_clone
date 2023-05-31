@@ -412,6 +412,48 @@ def idHost(user, spaceID):
             return True 
         
     return False
+
+def createSpace(data):
+
+    with driver.session() as session:
+        # Creación del nodo
+        queryC = (
+            "MERGE (s:Space {Categoria: $categoria, Ubicacion:$ubicacion, HoraProgramada: $horaProgramada, Titulo: $titulo, Desc: $desc, Multimedia:$multimedia}) "
+            "RETURN s "
+            )
+        
+        resultC = session.run(
+            queryC,
+            categoria = data['categoria'], 
+            ubicacion = data['ubicacion'], 
+            horaProgramada = datetime.datetime.now().time(), 
+            titulo = data['titulo'], 
+            desc = data['desc'], 
+            multimedia = data['multimedia']
+        )
+
+        id = 0
+        for record in resultC:
+            id = record['s'].id
+
+        print('NID: ', id)
+        print('Usuario: ', data['usuario']['Usuario'])
+
+        queryCC = (
+            "MATCH (a), (b:Usuario) "
+            "WHERE ID(a) = $NID AND b.Usuario = $userA "
+            "MERGE (a)<-[r:Crea {Fecha:$fecha} ]-(b) "
+            "RETURN a, b "
+        )
+
+        session.run(
+            queryCC, 
+            NID = id,
+            userA = data['usuario']['Usuario'], 
+            fecha = datetime.datetime.now()
+
+        )
+
             
 # No olvides cerrar la conexión al finalizar
 driver.close()
