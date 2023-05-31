@@ -192,7 +192,7 @@ def unfollow(userA, userB):
         MATCH (u:Usuario {Usuario: $usuarioA})-[s:Sigue]->(w:Usuario {Usuario: $usuarioB}) 
         DETACH DELETE s;
         """
-        result = session.run(query, usuarioA=userA, usuarioB=userB)
+        session.run(query, usuarioA=userA, usuarioB=userB)
 
 def get_following_list(username):
     users = []
@@ -216,3 +216,12 @@ def get_notifications_user(username):
             noti.append(tweets_node)
             
     return noti
+
+def change_visto(username, userM, tipo):
+    with driver.session() as session:
+        query = """
+        MATCH (n:Notification {UserMencionado: $userMen, Tipo: $typeN})-[:Notifica]->(u:Usuario {Usuario: $username})
+        SET n.Visto = true
+        """
+        session.run(query, userMen=userM, typeN=tipo, username=username)
+
