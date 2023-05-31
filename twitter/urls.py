@@ -19,5 +19,7 @@ urlpatterns = [
     path('notificationsB/<str:tipo>/<str:userM>/', views.view_notification, name='notificationsB'),
     path('comments/<str:TID>/', views.comments, name='comments'),
     path('liking/<str:username>/<str:TID>', views.liking, name='liking'),
-    path('unliking/<str:username>/<str:TID>', views.unliking, name='unliking')
+    path('unliking/<str:username>/<str:TID>', views.unliking, name='unliking'),
+    path('sharing/<str:username>/<str:TID>', views.sharing, name='sharing'),
+    path('unsharing/<str:username>/<str:TID>', views.unsharing, name='unsharing')
 ]

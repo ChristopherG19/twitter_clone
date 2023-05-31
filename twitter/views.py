@@ -70,11 +70,14 @@ def home(request):
     for tweet_node in tw:
         cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
         cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
+        cantidad_shares = connection.get_shares(tweet_node[1]["TID"])
         reacciones_likes = connection.get_tweet_likes_usres(tweet_node[1]["TID"])
+        reacciones_shares = connection.get_tweet_shares_usres(tweet_node[1]["TID"])
         # print(type(tweet_node[1]["TID"]))
-        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios, reacciones_likes))
+        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios,cantidad_shares, reacciones_likes, reacciones_shares))
 
-
+    sg = connection.get_sugerencias()
+    # print(sg)
     # Se obtiene el usuario activo
     user_node = request.session.get('user')
     if user_node != None:
@@ -123,7 +126,6 @@ def home(request):
                             if temp != None:
                                 tempNamesH.append(hash)
                             
-                                           
                 if(veri): 
                     if(len(usuarios)>0):
                         if(len(hashtags)>0):
@@ -142,13 +144,15 @@ def home(request):
                     for tweet_node in tw:
                         cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
                         cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
+                        cantidad_shares = connection.get_shares(tweet_node[1]["TID"])
                         reacciones_likes = connection.get_tweet_likes_usres(tweet_node[1]["TID"])
-                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios, reacciones_likes))
-                        
-                    context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
+                        reacciones_shares = connection.get_tweet_shares_usres(tweet_node[1]["TID"])
+                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios,cantidad_shares, reacciones_likes, reacciones_shares))
+                    sg = connection.get_sugerencias()
+                    context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores, 'sugerencias': sg}
                     return render(request, 'twitter/home.html', context)
             
-        context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
+        context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores, 'sugerencias':sg}
         return render(request, 'twitter/home.html', context)
 
     return redirect('login')
@@ -305,13 +309,15 @@ def profile(request, username):
         for tweet_node in tw:
             cantidad_likes = connection.get_likes(tweet_node["TID"])
             cantidad_comentarios = connection.get_comments(tweet_node["TID"])
+            cantidad_shares = connection.get_shares(tweet_node["TID"])
             reacciones_likes = connection.get_tweet_likes_usres(tweet_node["TID"])
+            reacciones_shares = connection.get_tweet_shares_usres(tweet_node["TID"])
             # print(type(tweet_node[1]["TID"]))
-            tweets.append((convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios, reacciones_likes))
+            tweets.append((convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios, cantidad_shares, reacciones_likes, reacciones_shares))
         # print(type(tweet_node[1]["TID"]))
         # tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
-
-        context = {'userInfo': user_node, 'user':user, 'tweets':tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores, 'follows':following}
+        sg = connection.get_sugerencias()
+        context = {'userInfo': user_node, 'user':user, 'tweets':tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores, 'follows':following, 'sugerencias':sg}
         return render(request, 'twitter/profile.html', context)
         
 def edit_profile(request):
@@ -388,10 +394,11 @@ def comments(request, TID):
     for tweet_node in tw:
         cantidad_likes = connection.get_likes(tweet_node["TID"])
         cantidad_comentarios = connection.get_comments(tweet_node["TID"])
+        cantidad_shares = connection.get_shares(tweet_node["TID"])
         usuario_encontrad = connection.get_usuario_from_tweet(tweet_node["TID"])
         reacciones_likes = connection.get_tweet_likes_usres(tweet_node["TID"])
-
-        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios,  reacciones_likes))
+        reacciones_shares = connection.get_tweet_shares_usres(tweet_node["TID"])
+        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios,  cantidad_shares,reacciones_likes, reacciones_shares))
 
     # Se obtiene el usuario activo
     user_node = request.session.get('user')
@@ -416,7 +423,8 @@ def comments(request, TID):
                         cantidad_likes = connection.get_likes(tweet_node["TID"])
                         usuario_encontrad = connection.get_usuario_from_tweet(tweet_node["TID"])
                         reacciones_likes = connection.get_tweet_likes_usres(tweet_node["TID"])
-                        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios, reacciones_likes))
+                        reacciones_shares = connection.get_tweet_shares_usres(tweet_node["TID"])
+                        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios, reacciones_likes, reacciones_shares))
 
 
                     context = { 'userInfo': user_node,'tweets':tweets}
@@ -433,4 +441,33 @@ def liking(request, username, TID):
 
 def unliking(request, username, TID):
     deleteTwe = connection.delete_reaction_like(username, TID)
+    return redirect('home')
+
+def sharing(request, username, TID):
+    
+    # Haciendo relacion de reaccion
+    deleteTwe = connection.add_reaction_share(username, TID)
+    
+    #Haciendo reweet
+    publicador = connection.get_usuario_from_tweet(TID)
+
+    
+    views = 0
+    fecha = datetime.datetime.now().date()
+    contestar = random.choice(['Todos', 'Seguidos'])
+    text = "(@"+publicador['Usuario']+")"+ "Retweet:"+connection.get_text_from_tweet(TID)
+    visibility = random.choice([True, False])
+    tid = "{:.0f}".format(SSnowflake())
+    properties = [views, fecha, contestar, text, visibility, tid]
+    
+    creando_retweet = connection.public_tweet(connection.get_nombre_from_usuario(username), properties)
+
+
+
+    return redirect('home')
+
+def unsharing(request, username, TID):
+    deleteTwe = connection.delete_reaction_share(username, TID)
+    getin_id = connection.get_retweet_from_text(connection.get_text_from_tweet(TID), username)
+    deleteret = connection.delete_tweet(getin_id)
     return redirect('home')

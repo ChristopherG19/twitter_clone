@@ -47,7 +47,7 @@
 
 
         <!-- Tweets -->
-        {% for tweet, likes, comentarios, likers in tweets %}
+        {% for tweet, likes, comentarios,shares, likers, sharers in tweets %}
         <div id="tweetCards">
             <!-- FOR LOOP HERE -->
             <div class="tweet-wrap" style="border-radius:20px">
@@ -86,7 +86,21 @@
                     </div>
 
                     <div class="retweets">
-                        <button style="background: white; border: none;">
+                        {% comment %} <button style="background: white; border: none;"> {% endcomment %}
+                            {% if userInfo.Usuario in sharers %}
+                            <a href="{% url 'unsharing' userInfo.Usuario tweet.TID%}">
+                            <svg class="feather feather-repeat sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg"
+                                width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="blue"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="17 1 21 5 17 9"></polyline>
+                                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                                <polyline points="7 23 3 19 7 15"></polyline>
+                                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                            </svg>
+                            </a>
+                            {% endif %}
+                            {% if userInfo.Usuario not in sharers %}
+                            <a href="{% url 'sharing' userInfo.Usuario tweet.TID%}">
                             <svg class="feather feather-repeat sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg"
                                 width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -95,13 +109,16 @@
                                 <polyline points="7 23 3 19 7 15"></polyline>
                                 <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
                             </svg>
-                        </button>
-                        <div class="retweet-count">0</div>
+                            </a>
+                            {% endif %}
+                        {% comment %} </button> {% endcomment %}
+                        <div class="retweet-count">{{shares}}</div>
                     </div>
 
                     <div class="likes">
-                        <button style="background: white; border: none;">
+                        {% comment %} <button style="background: white; border: none;"> {% endcomment %}
                             {% if userInfo.Usuario in likers %}
+                            <a href="{% url 'unliking' userInfo.Usuario tweet.TID%}">
                             <svg class="feather feather-heart sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg"
                                 width="20" height="20" viewBox="0 0 24 24" fill="red" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -109,8 +126,10 @@
                                     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
                                 </path>
                             </svg>
+                            </a>
                             {% endif %}
                             {% if userInfo.Usuario not in likers %}
+                            <a href="{% url 'liking' userInfo.Usuario tweet.TID%}">
                             <svg class="feather feather-heart sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg"
                                 width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -118,8 +137,9 @@
                                     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
                                 </path>
                             </svg>
+                            </a>
                             {% endif %}
-                        </button>
+                        {% comment %} </button> {% endcomment %}
                         <div class="likes-count">{{likes}}</div>
                     </div>
 
@@ -151,12 +171,14 @@
                 Sugerencias
             </div>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item"><a href=""
-                        style="text-decoration: none;color: #657787;">@playboicarti</a></li>
-                <li class="list-group-item"><a href=""
-                        style="text-decoration: none;color: #657787;">@LILUZIVERT</a></li>
-                <li class="list-group-item"><a href=""
-                        style="text-decoration: none;color: #657787;">@NARUTO_kousiki</a></li>
+                {% for user in sugerencias %}
+                    <a href="{% url 'profile' user.Usuario %}">
+                    <li class="list-group-item">
+                        <a href="{% url 'profile' user.Usuario %}" style="text-decoration: none;color: #657787;">
+                            @{{user.Usuario}}
+                        </a>
+                    </li>
+                {% endfor %}
             </ul>
         </div>
     </div>
