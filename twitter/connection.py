@@ -10,6 +10,48 @@ driver = GraphDatabase.driver(uri, auth=(username, password))
 
 # Aquí van todos los queries
 
+def convert_datetime(node):
+    tup = list(node.items())
+    
+    new_fecha = None
+    for tupla in tup:
+        if tupla[0] == 'FechaNacimiento':
+            new_fecha = tupla[1]
+            
+        elif tupla[0] == 'Fecha':
+            new_fecha = tupla[1]
+            
+        elif tupla[0] == 'FechaCreacion':
+            new_fecha = tupla[1]
+            
+    # Convertir el objeto DateTime de Neo4j a un objeto datetime de Python
+    fecha_python = new_fecha.to_native()
+    
+    # Modificar el valor de 'FechaNacimiento'
+    for i in range(len(tup)):
+        if tup[i][0] == 'FechaNacimiento':
+            tup[i] = ('FechaNacimiento', str(fecha_python))
+            break
+        
+        elif tup[i][0] == 'Fecha':
+            tup[i] = ('Fecha', datetime.datetime.strptime(str(fecha_python), "%Y-%m-%d"))
+            break
+        
+        elif tup[i][0] == 'FechaCreacion':
+            fecha_neo4j = tup[i][1]
+            fecha_python = datetime.datetime(
+                fecha_neo4j.year,
+                fecha_neo4j.month,
+                fecha_neo4j.day,
+                fecha_neo4j.hour,
+                fecha_neo4j.minute,
+                fecha_neo4j.second
+            )
+            tup[i] = ('FechaCreacion', fecha_python)
+            break
+      
+    return dict(tup)
+
 def create_user(name, username, email, password, fecha_nacimiento, descripcion, verificado):
     with driver.session() as session:
         query = """
@@ -118,19 +160,23 @@ def public_tweet(user, tweet, usersTags=None, hashTags=None):
                 hora_actual = datetime.datetime.now().time()
                 bol = False
                 
-                query = """
-                MATCH (a:Usuario {Usuario: $usuarioB})
-                MERGE (n:Notification {
-                    Tipo: 'mention',
-                    Fecha: $fecha,
-                    Hora: $hora,
-                    Visto: $val,
-                    UserMencionado: $userM,
-                    Trending: $val2
-                })-[:Notifica]->(a)
-                """
-                result = session.run(query, usuarioB=userB, fecha=newfecha, hora=hora_actual, val=bol, userM=user, val2=bol)
-        
+                tempVer = convert_datetime(get_user_node(userB))
+                
+                print(tempVer['Nombre'], user)
+                if(tempVer['Nombre'] != user):
+                    query = """
+                    MATCH (a:Usuario {Usuario: $usuarioB})
+                    MERGE (n:Notification {
+                        Tipo: 'mention',
+                        Fecha: $fecha,
+                        Hora: $hora,
+                        Visto: $val,
+                        UserMencionado: $userM,
+                        Trending: $val2
+                    })-[:Notifica]->(a)
+                    """
+                    result = session.run(query, usuarioB=userB, fecha=newfecha, hora=hora_actual, val=bol, userM=user, val2=bol)
+            
         if hashTags:
             for has in hashTags:
                 query = """
