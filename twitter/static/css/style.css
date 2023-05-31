@@ -24,6 +24,7 @@ img {
 
 .card {
   border: none;
+  border-radius: 50px;
 }
 
 .card-header {

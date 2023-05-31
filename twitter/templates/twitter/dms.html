@@ -1,11 +1,11 @@
 {% extends 'twitter/layout.html' %}
 {% load humanize %}
 {% block content %}
-<div id="main" class="container-fluid d-flex">
+<div id="main" class="container-fluid d-flex" style="height: max-content;">
     <!-- Barra contactos -->
     <div class="sidebar m-5 d-none d-xl-block">
 
-        <div class="card" style="width: 18rem;">
+        <div class="card" style="width: 15rem; border-radius: 20px;">
             <div class="card-header">
                 Chats previos
             </div>
@@ -14,7 +14,7 @@
                 <li class="list-group-item"><a href="{% url 'dmsP' contact %}"
                     style="text-decoration: none;color: #657787;">{{contact}}</a></li>
                 {% endfor %}
-                <li class="list-group-item"><a href=""
+                <li class="list-group-item"><a href="{% url 'dms' %}"
                         style="text-decoration: none;color: #657787;">Nuevo Chat</a></li>
             </ul>
         </div>
@@ -24,36 +24,36 @@
     <div class="content">
 
         <!-- Tweets -->
-        <div id="tweetCards">
+        <div id="tweetCards" style="width: 50rem; max-width: none;" >
             <!-- FOR LOOP HERE -->
-            <div class="tweet-wrap" style="border-radius:20px">
+            <div class="tweet-wrap" style="border-radius:20px; max-width: none; width: 100%; margin: 0, 10px, 0, 0; padding: 4rem;">
                 {% if actual_contact %}
-                <div class="tweet-header">
-                    <div class="tweet-header-info">
+                <div class="tweet-header" >
+                    <div class="tweet-header-info" style="width: 100%;">
                         {{actual_contact}} <span> </span>
                         {% for message in messages %}
                             {% if actual_contact == message.1 %}
-                            <div style="background: rgb(205, 248, 249); border-radius: 5px; border: none;" class="mensaje-enviado">
+                            <div style="background: rgb(205, 248, 249); border-radius: 5px; border: none; width: fit-content; padding: 0.2rem 0.6rem; margin: 1rem;" class="mensaje-enviado">
                                 <p>{{message.1}} <span>{{message.0.Dia}}:{{message.2}}</span><br>
                                     {{message.0.Texto}}
                                 </p>
                                 {% if message.0.Contenido %}
-                                <p>Enlace: {{message.0.Contenido}}</p>
+                                <p style="margin: 0.1rem;">Enlace: {{message.0.Contenido}}</p>
                                 {% endif %}
                                 {% for link in message.0.Links %}
-                                <p>Archivo: {{link}}</p>
+                                <p style="margin: 0.1rem;">Archivo: {{link}}</p>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            <div style="background: rgb(221, 249, 230); border-radius: 5px; border: none;" class="mensaje-enviado">
+                            <div style="background: rgb(221, 249, 230); border-radius: 5px; border: none; width: fit-content; padding: 0.2rem 0.6rem; margin: 1rem;" class="mensaje-enviado">
                                 <p>{{message.1}} <span>{{message.0.Dia}}:{{message.2}}</span><br>
                                     {{message.0.Texto}}
                                 </p>
                                 {% if message.0.Contenido %}
-                                <p>Enlace: {{message.0.Contenido}}</p>
+                                <p style="margin: 0.1rem;">Enlace: {{message.0.Contenido}}</p>
                                 {% endif %}
                                 {% for link in message.0.Links %}
-                                <p>Archivo: {{link}}</p>
+                                <p style="margin: 0.1rem;">Archivo: {{link}}</p>
                                 {% endfor %}
                             </div>
                             {% endif %}
@@ -62,25 +62,22 @@
 
                     </div>
                 </div>
-
-
                 <div class="d-flex">
-
                     <!-- área escritura mensaje -->
-                    <form class="col pr-0" method="post">
+                    <form class="col pr-0" method="post" style="padding: 0;">
                         {% csrf_token %}
     
-                        <textarea name="textArea" class="form-control w-200" id="contentsBox" placeholder="Escribe aquí tu mensaje" maxlength=300></textarea>
-                        <textarea name="contenido" class="form-control w-200" id="contentsBox" placeholder="Agregar enlace" maxlength=100></textarea>
-                        <div>
-                            <div>
-                                <textarea name="link1" class="form-control w-200" id="contentsBox" placeholder="Archivo 1" maxlength=100></textarea>
-                                <textarea name="link2" class="form-control w-200" id="contentsBox" placeholder="Archivo 2" maxlength=100></textarea>
+                        <textarea style="height: 4rem; margin: 0;" name="textArea" class="form-control w-200" id="contentsBox" placeholder = "Escribe el mensaje aquí" maxlength=300></textarea>
+                        <textarea style="height: 3rem;" name="contenido" class="form-control w-200" id="contentsBox" placeholder="Agregar enlace" maxlength=100></textarea>
+                        <div style="margin-top: 1rem;">
+                            <div class="d-flex">
+                                <textarea style="height: 3rem;" name="link1" class="form-control w-200" id="contentsBox" placeholder="Archivo 1" maxlength=100></textarea>
+                                <textarea style="height: 3rem;" name="link2" class="form-control w-200" id="contentsBox" placeholder="Archivo 2" maxlength=100></textarea>
                             </div>
-                            <div>
-                                <textarea name="link3" class="form-control w-200" id="contentsBox" placeholder="Archivo 3" maxlength=100></textarea>
-                                <textarea name="link4" class="form-control w-200" id="contentsBox" placeholder="Archivo 4" maxlength=100></textarea>
-                            </div>
+                            <div class="d-flex">
+                                <textarea style="height: 3rem;" name="link3" class="form-control w-200" id="contentsBox" placeholder="Archivo 3" maxlength=100></textarea>
+                                <textarea style="height: 3rem;" name="link4" class="form-control w-200" id="contentsBox" placeholder="Archivo 4" maxlength=100></textarea>
+                            </div >
                         </div>
                         <div class="container d-flex" style="padding: 1rem 0 0 0;">
                             <div id="leftBtn">
@@ -91,7 +88,7 @@
                             </div>
     
                             <div id="rightBtn">
-                                <button class="btn rounded-pill" style="width: 100%;">Send</button>
+                                <button class="btn rounded-pill" style="width: 100%;">Enviar</button>
                             </div>
                         </div>
                     </form>
@@ -101,7 +98,7 @@
                 {% else %}
                 <div class="tweet-header">
                     <div class="tweet-header-info">
-                        <h1>Selecciona un mensaje</h1>
+                        <h1 style="margin-bottom: 40px;">Selecciona un mensaje</h1>
                         Elige de tus conversaciones existentes, inicia una nueva ingresando el nombre en el link, o simplemente continúa con tu día :D
                     </div>
                 </div>
