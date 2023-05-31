@@ -84,7 +84,11 @@
                         {% if space.3 %}
                         <button class="btn rounded-pill" style="width: 100%;">Finalizar</button>
                         {% else %}
+                        {% if space.4 %}
+                        <button class="btn rounded-pill" style="width: 100%;"><a style="color: white;" href="">Abandonar</a></button>
+                        {% else %} 
                         <button class="btn rounded-pill" style="width: 100%;"><a style="color: white;" href="{% url 'spacesParticipate' space.2 %}">Participar</a></button>
+                        {% endif %}
                         {% endif %}
                         
                         {% endif %}

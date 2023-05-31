@@ -325,34 +325,8 @@ def spacesParticipate(request, NID):
 
         connection.interactua(user_node['Usuario'], NID)
 
-        if request.method == 'POST':
-            SpaceTitle = request.POST.get('SpaceTitle')
-            SpaceDesc = request.POST.get('SpaceDesc')
-            SpaceUbic = request.POST.get('SpaceUbic')
-            SpaceCat = request.POST.get('SpaceCat')
-            SpaceMult = request.POST.get('SpaceMult')
+    return redirect("spaces")
 
-            if (len(SpaceTitle) > 0 or len(SpaceDesc) or len(SpaceUbic) or len(SpaceCat) or len(SpaceMult)):
-                data = {
-                    'categoria' : SpaceCat, 
-                    'ubicacion' : SpaceUbic, 
-                    'titulo' : SpaceTitle, 
-                    'desc': SpaceDesc, 
-                    'multimedia': SpaceMult, 
-                    'usuario': user_node
-                }
-
-                connection.createSpace(data)
-
-        sp = connection.getSpaces(user_node)
-
-        context = {
-            'userInfo': user_node,
-            'Spaces': sp
-            }
-        return render(request, 'twitter/spaces.html', context)
-
-    return redirect('login')
     
 
     

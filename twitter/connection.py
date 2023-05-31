@@ -382,7 +382,10 @@ def getSpaces(user):
             if idHost(user, record['s'].id): host = True 
             else: host = False
 
-            spaces.append([record['u'],record['s'], record['s'].id, host])
+            if haInteractuado(user['Usuario'], record['s'].id): interaccion = True
+            else: interaccion = False
+
+            spaces.append([record['u'], record['s'], record['s'].id, host, interaccion])
 
         return spaces
     
@@ -406,6 +409,29 @@ def idHost(user, spaceID):
 
             if record['u']['Usuario'] == user['Usuario']: return True
 
+    return False
+
+def haInteractuado(user, space):
+    
+    with driver.session() as session:
+            
+        query = (
+            "MATCH (u:Usuario), (s:Space) "
+            "WHERE u.Usuario = $usuarioA and id(s) = $spaceB "
+            "MATCH (u) -[r:Interactua]->(s) "
+            "RETURN u, s, r"
+        )
+
+        result = session.run(
+            query, 
+            usuarioA = user,
+            spaceB = space
+        )
+
+        for record in result:
+            if record['u']['Usuario'] == user:
+                return True
+            
     return False
 
 def createSpace(data):
