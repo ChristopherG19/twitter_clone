@@ -130,7 +130,7 @@ def get_tweets():
     tweetsIDS = []
     tweets = []
     with driver.session() as session:
-        query = "MATCH (tweet:Tweet) RETURN tweet ORDER BY tweet.Fecha DESC LIMIT 15"
+        query = "MATCH (tweet:Tweet) RETURN tweet ORDER BY tweet.Fecha DESC LIMIT 25"
         result = session.run(query, username=username, password=password)
         for record in result:
             tweets_node = record["tweet"]["TID"]
@@ -429,6 +429,19 @@ def get_comments(id_del_tweet):
         else:
             return None
 
+def get_shares(id_del_tweet):
+    with driver.session() as session:
+        # query = "MATCH (u:Usuario)-[:Reacciona]->(:Tweet {TID: $tid}) RETURN COUNT(DISTINCT u) AS cantidad_usuarios_reaccionan"
+        query = "MATCH (u:Usuario)-[r:Reacciona {Share: true}]->(:Tweet {TID: $tid}) RETURN COUNT(DISTINCT u) AS cantidad_usuarios_reaccionan"
+        # query = "MATCH (:Usuario {Usuario: $username})-[:Sigue]->(n:Usuario) WITH COUNT(DISTINCT n) AS NumeroDeUsuariosSeguidos RETURN NumeroDeUsuariosSeguidos;"
+        result = session.run(query, tid=id_del_tweet)
+        number = result.single()
+        if number:
+            return number[ "cantidad_usuarios_reaccionan"]
+        else:
+            return None
+
+
 def get_tweet_comments(TID):
     tweets = []
     with driver.session() as session:
@@ -516,6 +529,63 @@ def delete_reaction_like(username, TID):
         else:
             return None
 
+
+def add_reaction_share(username, TID):
+    
+    fecha = datetime.datetime.now()
+    cfs = random.choice([True, False])
+    
+    with driver.session() as session:
+        query = """
+        MATCH (usuario:Usuario {Usuario: $username})
+        MATCH (tweet:Tweet {TID: $TID})
+        MERGE (usuario)-[r:Reacciona]->(tweet)
+        SET r.Fecha = date(),
+            r.Hora = time(),
+            r.Share = true
+        RETURN r
+        """
+        result = session.run(query, username=username, TID=TID)
+        relation_created = result.single()
+        
+        if result:
+            newfecha = fecha = datetime.datetime.now().date()
+            hora_actual = datetime.datetime.now().time()
+            bol = False
+
+            query = """
+            MATCH (a:Usuario {Usuario: $usuarioB})
+            MERGE (n:Notification {
+                Tipo: 'retweet',
+                Fecha: $fecha,
+                Hora: $hora,
+                Visto: $val,
+                UserMencionado: $userM,
+                Trending: $val2
+            })-[:Notifica]->(a)
+            """
+            result = session.run(query, usuarioB=get_usuario_from_tweet(TID)["Usuario"], fecha=newfecha, hora=hora_actual, val=bol, userM=username, val2=bol)
+            
+def delete_reaction_share(username, TID):
+
+    with driver.session() as session:
+        query = """
+        MATCH (usuario:Usuario {Usuario: $username})
+        MATCH (tweet:Tweet {TID: $TID})
+        MERGE (usuario)-[r:Reacciona]->(tweet)
+        SET r.Fecha = date(),
+            r.Hora = time(),
+            r.Share = false
+        RETURN r
+        """
+        result = session.run(query, username=username, TID=TID)
+        relation_created = result.single()
+        if relation_created:
+            return relation_created["r"]
+        else:
+            return None
+
+
 def get_usuario_from_tweet(TID):
     with driver.session() as session:
         query = "MATCH (usuario:Usuario)-[:Publica]->(tweet:Tweet {TID: $TID}) RETURN usuario"
@@ -523,6 +593,48 @@ def get_usuario_from_tweet(TID):
         user = result.single()
         if user:
             return user["usuario"]
+        else:
+            return None
+
+def get_nombre_from_usuario(username):
+    with driver.session() as session:
+        query = "MATCH (usuario:Usuario {Usuario: $username}) RETURN usuario"
+        result = session.run(query, username=username)
+        user = result.single()
+        if user:
+            return user["usuario"]['Nombre']
+        else:
+            return None
+
+def get_text_from_tweet(TID):
+    with driver.session() as session:
+        query = "MATCH (tweet:Tweet {TID: $TID}) RETURN tweet"
+        result = session.run(query, TID = TID)
+        user = result.single()
+        if user:
+            return user["tweet"]["Text"]
+        else:
+            return None
+
+def get_sugerencias():
+
+    tweets = []
+    with driver.session() as session:
+        query = "MATCH (usuario:Usuario) RETURN usuario ORDER BY rand() LIMIT 3"
+        result = session.run(query, username=username, password=password)
+        for record in result:
+            tweets_node = record["usuario"]
+            tweets.append(tweets_node)
+
+    return tweets
+    
+def get_retweet_from_text(text, username):
+    with driver.session() as session:
+        query = "MATCH (usuario:Usuario {Usuario: $username})-[:Publica]->(tweet:Tweet) WHERE tweet.Text CONTAINS $text RETURN tweet"
+        result = session.run(query, username=username,  text = "Retweet:"+text)
+        user = result.single()
+        if user:
+            return user["tweet"]["TID"]
         else:
             return None
 
@@ -549,6 +661,16 @@ def get_tweet_likes_usres(TID):
     tweets = []
     with driver.session() as session:
         query = "MATCH (:Tweet {TID: $TID})<-[:Reacciona {Like: true}]-(usuario:Usuario) RETURN usuario"
+        result = session.run(query, TID=TID)
+        for record in result:
+            tweets_node = record["usuario"]["Usuario"]
+            tweets.append(tweets_node)
+            
+    return tweets
+def get_tweet_shares_usres(TID):
+    tweets = []
+    with driver.session() as session:
+        query = "MATCH (:Tweet {TID: $TID})<-[:Reacciona {Share: true}]-(usuario:Usuario) RETURN usuario"
         result = session.run(query, TID=TID)
         for record in result:
             tweets_node = record["usuario"]["Usuario"]

@@ -23,4 +23,6 @@ urlpatterns = [
     path('spaces', views.spaces, name='spaces'),
     path('spaces/<int:NID>', views.spacesParticipate, name='spacesParticipate' ),
     path('spacesEnd/<int:NID>', views.endSpace, name='endSpace' ),
+    path('sharing/<str:username>/<str:TID>', views.sharing, name='sharing'),
+    path('unsharing/<str:username>/<str:TID>', views.unsharing, name='unsharing')
 ]
