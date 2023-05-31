@@ -30,7 +30,7 @@
                 {% if actual_contact %}
                 <div class="tweet-header" >
                     <div class="tweet-header-info" style="width: 100%;">
-                        {{actual_contact}} <span> </span>
+                        <a href="{% url 'profile' actual_contact %}">{{actual_contact}}</a>  <span> </span>
                         {% for message in messages %}
                             {% if actual_contact == message.1 %}
                             <div style="background: rgb(205, 248, 249); border-radius: 5px; border: none; width: fit-content; padding: 0.2rem 0.6rem; margin: 1rem;" class="mensaje-enviado">
