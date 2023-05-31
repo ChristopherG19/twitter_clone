@@ -51,7 +51,11 @@ def home(request):
     tw = connection.get_tweets()
     tweets = []
     for tweet_node in tw:
-        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1])))
+        cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
+        cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
+        # print(type(tweet_node[1]["TID"]))
+        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
+
 
     # Se obtiene el usuario activo
     user_node = request.session.get('user')
@@ -66,16 +70,18 @@ def home(request):
             text = request.POST.get('textArea')
             visibility = random.choice([True, False])
             tid = "{:.0f}".format(SSnowflake())
-            
             if(len(text) > 0):
                 properties = [views, fecha, contestar, text, visibility, tid]
                 publicacion = connection.public_tweet(user_node['Nombre'], properties)
-                
+
                 if publicacion:
                     tw = connection.get_tweets()
                     tweets = []
                     for tweet_node in tw:
-                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1])))
+                        cantidad_likes = connection.get_likes(tweet_node[1]["TID"])
+                        cantidad_comentarios = connection.get_comments(tweet_node[1]["TID"])
+                        # print(type(tweet_node[1]["TID"]))
+                        tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
                         
                     context = {'userInfo': user_node, 'tweets': tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores}
                     return render(request, 'twitter/home.html', context)
@@ -235,7 +241,11 @@ def profile(request, username):
         tw = connection.get_user_tweets(username)
         tweets = []
         for tweet_node in tw:
-            tweets.append(convert_datetime(tweet_node))
+            cantidad_likes = connection.get_likes(tweet_node["TID"])
+            cantidad_comentarios = connection.get_comments(tweet_node["TID"])
+            tweets.append((convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios))
+        # print(type(tweet_node[1]["TID"]))
+        # tweets.append((convert_datetime(tweet_node[0]), convert_datetime(tweet_node[1]), cantidad_likes, cantidad_comentarios))
 
         context = {'userInfo': user_node, 'user':user, 'tweets':tweets, 'cantidad_following':cantidad_seguidos, 'cantidad_followers': cantidad_seguidores, 'follows':following}
         return render(request, 'twitter/profile.html', context)
@@ -279,3 +289,46 @@ def unfollow(request, username):
     relationship = connection.unfollow(user_node['Usuario'], to_user['Usuario'])
 
     return redirect('home')
+
+def comments(request, TID):
+
+    tw =connection.get_tweet_comments(TID)
+    tweets = []
+    for tweet_node in tw:
+        cantidad_likes = connection.get_likes(tweet_node["TID"])
+        cantidad_comentarios = connection.get_comments(tweet_node["TID"])
+        usuario_encontrad = connection.get_usuario_from_tweet(tweet_node["TID"])
+        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios))
+
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+        if request.method == 'POST':
+            views = 0
+            fecha = datetime.datetime.now().date()
+            contestar = random.choice(['Todos', 'Seguidos'])
+            text = request.POST.get('textArea')
+            visibility = random.choice([True, False])
+            tid = "{:.0f}".format(SSnowflake())
+            if(len(text) > 0):
+                properties = [views, fecha, contestar, text, visibility, tid]
+                publicacion = connection.public_tweet(user_node['Nombre'], properties)
+                comentando = connection.tweet_responde_tweet(tid, TID)
+                
+                if publicacion:
+                    tw =connection.get_tweet_comments(TID)
+                    tweets = []
+                    for tweet_node in tw:
+                        cantidad_likes = connection.get_likes(tweet_node["TID"])
+                        usuario_encontrad = connection.get_usuario_from_tweet(tweet_node["TID"])
+                        tweets.append((convert_datetime(usuario_encontrad),convert_datetime(tweet_node), cantidad_likes, cantidad_comentarios))
+
+
+                    context = { 'userInfo': user_node,'tweets':tweets}
+                    return render(request, 'twitter/comments.html', context)
+            
+        context = {'userInfo': user_node,'tweets':tweets}
+        return render(request, 'twitter/comments.html', context)
+
+    return redirect('login')

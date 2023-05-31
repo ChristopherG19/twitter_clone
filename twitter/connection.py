@@ -88,7 +88,7 @@ def get_tweets():
     tweetsIDS = []
     tweets = []
     with driver.session() as session:
-        query = "MATCH (tweet:Tweet) RETURN tweet ORDER BY tweet.Fecha DESC LIMIT 10"
+        query = "MATCH (tweet:Tweet) RETURN tweet ORDER BY tweet.Fecha DESC LIMIT 15"
         result = session.run(query, username=username, password=password)
         for record in result:
             tweets_node = record["tweet"]["TID"]
@@ -369,7 +369,70 @@ def sendMessage(data):
                     hora = data['hora'],
                 )
 
+def get_likes(id_del_tweet):
+    with driver.session() as session:
+        # query = "MATCH (u:Usuario)-[:Reacciona]->(:Tweet {TID: $tid}) RETURN COUNT(DISTINCT u) AS cantidad_usuarios_reaccionan"
+        query = "MATCH (u:Usuario)-[r:Reacciona {Like: true}]->(:Tweet {TID: $tid}) RETURN COUNT(DISTINCT u) AS cantidad_usuarios_reaccionan"
+        # query = "MATCH (:Usuario {Usuario: $username})-[:Sigue]->(n:Usuario) WITH COUNT(DISTINCT n) AS NumeroDeUsuariosSeguidos RETURN NumeroDeUsuariosSeguidos;"
+        result = session.run(query, tid=id_del_tweet)
+        number = result.single()
+        if number:
+            return number[ "cantidad_usuarios_reaccionan"]
+        else:
+            return None
 
-            
+def get_comments(id_del_tweet):
+    with driver.session() as session:
+        query = "MATCH (:Tweet {TID: $tid})<-[:Responde]-(respuesta:Tweet) RETURN COUNT(respuesta) AS cantidad_respuestas"
+        result = session.run(query, tid=id_del_tweet)
+        number = result.single()
+        if number:
+            return number["cantidad_respuestas"]
+        else:
+            return None
+
+def get_tweet_comments(TID):
+    tweets = []
+    with driver.session() as session:
+        query = "MATCH (t:Tweet {TID: $TID}) RETURN t"
+        result = session.run(query, TID=TID)
+        for record in result:
+            tweets_node = record["t"]
+            tweets.append(tweets_node)
+        query = "MATCH (t:Tweet {TID: $TID})<-[:Responde]-(respuesta:Tweet) RETURN respuesta"
+        result = session.run(query, TID=TID)
+        for record in result:
+            tweets_node = record["respuesta"]
+            tweets.append(tweets_node)
+    return tweets
+
+def tweet_responde_tweet(TID1, TID2):
+    
+    dis = random.choice(['Android', 'PC', 'IPhone', 'IPad', 'Mac', 'Xiaomi'])
+
+    with driver.session() as session:
+        query = """
+        MATCH (tweet1:Tweet {TID: $TID1})
+        MATCH (tweet2:Tweet {TID: $TID2})
+        MERGE (tweet1)-[:Responde {Dispositivo: $dispo, Ubicacion: 'Guatemala'}]->(tweet2)
+        """
+        result = session.run(query, TID1 = TID1, TID2 = TID2,dispo=dis)
+
+        if result.consume().counters.nodes_created > 0:
+            return True
+        else:
+            return None
+
+
+def get_usuario_from_tweet(TID):
+    with driver.session() as session:
+        query = "MATCH (usuario:Usuario)-[:Publica]->(tweet:Tweet {TID: $TID}) RETURN usuario"
+        result = session.run(query, TID = TID)
+        user = result.single()
+        if user:
+            return user["usuario"]
+        else:
+            return None
+
 # No olvides cerrar la conexión al finalizar
 driver.close()

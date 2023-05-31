@@ -47,7 +47,7 @@
 
 
         <!-- Tweets -->
-        {% for tweet in tweets %}
+        {% for tweet, likes, comentarios in tweets %}
         <div id="tweetCards">
             <!-- FOR LOOP HERE -->
             <div class="tweet-wrap" style="border-radius:20px">
@@ -70,17 +70,19 @@
                 <div class="tweet-info-counts">
 
                     <div class="comments">
-                        <button style="background: white; border: none;">
-                            <svg class="feather feather-message-circle sc-dnqmqq jxshSx"
-                                xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" aria-hidden="true">
-                                <path
-                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
-                                </path>
-                            </svg>
-                        </button>
-                        <div class="comment-count"></div>
+                        <a href="{% url 'comments' tweet.TID %}">
+                            <button style="background: white; border: none;">
+                                <svg class="feather feather-message-circle sc-dnqmqq jxshSx"
+                                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path
+                                        d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </a>
+                        <div class="comment-count">{{comentarios}}</div>
                     </div>
 
                     <div class="retweets">
@@ -94,7 +96,7 @@
                                 <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
                             </svg>
                         </button>
-                        <div class="retweet-count"> </div>
+                        <div class="retweet-count">0</div>
                     </div>
 
                     <div class="likes">
@@ -107,7 +109,7 @@
                                 </path>
                             </svg>
                         </button>
-                        <div class="likes-count"> </div>
+                        <div class="likes-count">{{likes}}</div>
                     </div>
 
                     <!-- DELETE -->
