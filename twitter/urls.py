@@ -14,7 +14,7 @@ urlpatterns = [
     path('follow/<str:username>/', views.follow, name='follow'),
     path('unfollow/<str:username>/', views.unfollow, name='unfollow'),
     path('dms', views.dms, name='dms'),
-    path('dms/<str:contact>/', views.dmsP, name='dmsP')
+    path('dms/<str:contact>/', views.dmsP, name='dmsP'),
     path('notifications/', views.get_notifications, name='notifications'),
     path('notificationsB/<str:tipo>/<str:userM>/', views.view_notification, name='notificationsB')
 ]
