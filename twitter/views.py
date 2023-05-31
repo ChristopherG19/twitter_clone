@@ -288,8 +288,11 @@ def spaces(request):
 
         messages = connection.get_dms(user_node)
 
+        sp = connection.getSpaces()
+
         context = {
-            'userInfo': user_node
+            'userInfo': user_node,
+            'Spaces': sp
             }
         return render(request, 'twitter/spaces.html', context)
 

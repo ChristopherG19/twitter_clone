@@ -8,6 +8,9 @@ password = 'MJGh4EdPtnhBp9VeB85_iV1RIma57HuFea9u8-vKkXI'
 
 driver = GraphDatabase.driver(uri, auth=(username, password))
 
+from neo4j import GraphDatabase
+import datetime
+
 # Aquí van todos los queries
 
 def create_user(name, username, email, password, fecha_nacimiento, descripcion, verificado):
@@ -202,16 +205,6 @@ def get_following_list(username):
             users.append(tweets_node)
             
     return users
-from neo4j import GraphDatabase
-import datetime
-
-uri = 'neo4j+s://f818cdff.databases.neo4j.io'
-username = 'neo4j'
-password = 'MJGh4EdPtnhBp9VeB85_iV1RIma57HuFea9u8-vKkXI'
-
-driver = GraphDatabase.driver(uri, auth=(username, password))
-
-# Aquí van todos los queries
 
 def create_user(name, username, email, password, fecha_nacimiento, descripcion, verificado):
     with driver.session() as session:
@@ -369,6 +362,31 @@ def sendMessage(data):
                     hora = data['hora'],
                 )
 
+
+def getSpaces():
+
+    with driver.session() as session:
+
+        query = (
+            "MATCH (s:Space) "
+            "MATCH (u:Usuario) -[r:Crea] -> (s) "
+            "RETURN u,r,s "
+            "ORDER BY s.HoraProgramada "
+            "LIMIT 10 "
+        )
+
+        result = session.run(query)
+
+        spaces = []
+
+        for record in result:
+            print('\nusuario, ', record['u'])
+            print('\nrelacion, ', record['r'])
+            print('\nspace', record['s'])
+
+            spaces.append([record['u'],record['s']])
+
+        return spaces
 
             
 # No olvides cerrar la conexión al finalizar
