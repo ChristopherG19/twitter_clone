@@ -372,7 +372,6 @@ def getSpaces(user):
             "MATCH (u:Usuario) -[r:Crea] -> (s) "
             "RETURN u,r,s "
             "ORDER BY s.HoraProgramada "
-            "LIMIT 10 "
         )
 
         result = session.run(query)
@@ -473,6 +472,24 @@ def createSpace(data):
             userA = data['usuario']['Usuario'], 
             fecha = datetime.datetime.now()
 
+        )
+
+def endSpace(spaceID):
+    with driver.session() as session:
+
+        hora = datetime.datetime.now()
+        
+        query = (
+            "MATCH (s:Space) "
+            "WHERE ID(s) = $SID "
+            "SET s.HoraFinalizada = $hf "
+            "RETURN s.HoraFinalizada "
+        )
+
+        result = session.run(
+            query, 
+            SID = spaceID, 
+            hf = hora
         )
 
 def interactua(userUsuario, spaceID):

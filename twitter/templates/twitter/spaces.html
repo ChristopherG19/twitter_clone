@@ -66,11 +66,11 @@
                         </div>
                         <div>
                             {% if space.1.HoraFinalizada %}
-                            <p>
+                            <p style="background-color: #3b4d59; color: white;">
                                 FINALIZADO
                             </p>
                             {% else %}
-                            <p>
+                            <p style="background-color: #1E96EB; color: white;">
                                 EN VIVO
                             </p>
                             {% endif %}
@@ -82,12 +82,18 @@
                         {% else %}
                         
                         {% if space.3 %}
-                        <button class="btn rounded-pill" style="width: 100%;">Finalizar</button>
+                        <button class="btn rounded-pill" style="width: 100%;">
+                            <a style="color: white;" href="{% url 'endSpace' space.2 %}">Finalizar</a>
+                        </button>
                         {% else %}
                         {% if space.4 %}
-                        <button class="btn rounded-pill" style="width: 100%;"><a style="color: white;" href="">Abandonar</a></button>
+                        <button class="btn rounded-pill" style="width: 100%;">
+                            <a style="color: white;" href="">Abandonar</a>
+                        </button>
                         {% else %} 
-                        <button class="btn rounded-pill" style="width: 100%;"><a style="color: white;" href="{% url 'spacesParticipate' space.2 %}">Participar</a></button>
+                        <button class="btn rounded-pill" style="width: 100%;">
+                            <a style="color: white;" href="{% url 'spacesParticipate' space.2 %}">Participar</a>
+                        </button>
                         {% endif %}
                         {% endif %}
                         

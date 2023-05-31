@@ -327,6 +327,18 @@ def spacesParticipate(request, NID):
 
     return redirect("spaces")
 
+def endSpace(request, NID):
+    print("spacesParticipate")
+
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        connection.endSpace(NID)
+
+    return redirect("spaces")
+
     
 
     
