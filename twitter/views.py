@@ -434,3 +434,62 @@ def liking(request, username, TID):
 def unliking(request, username, TID):
     deleteTwe = connection.delete_reaction_like(username, TID)
     return redirect('home')
+
+def spaces(request):
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        if request.method == 'POST':
+            SpaceTitle = request.POST.get('SpaceTitle')
+            SpaceDesc = request.POST.get('SpaceDesc')
+            SpaceUbic = request.POST.get('SpaceUbic')
+            SpaceCat = request.POST.get('SpaceCat')
+            SpaceMult = request.POST.get('SpaceMult')
+
+            if (len(SpaceTitle) > 0 or len(SpaceDesc) or len(SpaceUbic) or len(SpaceCat) or len(SpaceMult)):
+                data = {
+                    'categoria' : SpaceCat, 
+                    'ubicacion' : SpaceUbic, 
+                    'titulo' : SpaceTitle, 
+                    'desc': SpaceDesc, 
+                    'multimedia': SpaceMult, 
+                    'usuario': user_node
+                }
+
+                connection.createSpace(data)
+
+        sp = connection.getSpaces(user_node)
+
+        context = {
+            'userInfo': user_node,
+            'Spaces': sp
+            }
+        return render(request, 'twitter/spaces.html', context)
+
+    return redirect('login')
+
+def spacesParticipate(request, NID):
+    print("spacesParticipate")
+
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        connection.interactua(user_node['Usuario'], NID)
+
+    return redirect("spaces")
+
+def endSpace(request, NID):
+    print("spacesParticipate")
+
+    # Se obtiene el usuario activo
+    user_node = request.session.get('user')
+
+    if user_node != None:
+
+        connection.endSpace(NID)
+
+    return redirect("spaces")

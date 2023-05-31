@@ -19,5 +19,8 @@ urlpatterns = [
     path('notificationsB/<str:tipo>/<str:userM>/', views.view_notification, name='notificationsB'),
     path('comments/<str:TID>/', views.comments, name='comments'),
     path('liking/<str:username>/<str:TID>', views.liking, name='liking'),
-    path('unliking/<str:username>/<str:TID>', views.unliking, name='unliking')
+    path('unliking/<str:username>/<str:TID>', views.unliking, name='unliking'),
+    path('spaces', views.spaces, name='spaces'),
+    path('spaces/<int:NID>', views.spacesParticipate, name='spacesParticipate' ),
+    path('spacesEnd/<int:NID>', views.endSpace, name='endSpace' ),
 ]

@@ -584,6 +584,154 @@ def create_hashtag(hash):
             return True
         else:
             return None
+        
+def getSpaces(user):
+
+    with driver.session() as session:
+
+        query = (
+            "MATCH (s:Space) "
+            "MATCH (u:Usuario) -[r:Crea] -> (s) "
+            "RETURN u,r,s "
+            "ORDER BY s.HoraProgramada "
+        )
+
+        result = session.run(query)
+        spaces = []
+        for record in result:
+
+            if idHost(user, record['s'].id): host = True 
+            else: host = False
+
+            if haInteractuado(user['Usuario'], record['s'].id): interaccion = True
+            else: interaccion = False
+
+            spaces.append([record['u'], record['s'], record['s'].id, host, interaccion])
+
+        return spaces
+    
+def idHost(user, spaceID):
+    with driver.session() as session:
+
+        query = (
+            "MATCH (u:Usuario), (s:Space) "
+            "WHERE id(s) = $space "
+            "MATCH (u) -[r:Crea] -> (s) "
+            "RETURN u "
+        )
+
+        result = session.run(
+            query, 
+            user = user, 
+            space = spaceID
+        )
+
+        for record in result:
+
+            if record['u']['Usuario'] == user['Usuario']: return True
+
+    return False
+
+def haInteractuado(user, space):
+    
+    with driver.session() as session:
+            
+        query = (
+            "MATCH (u:Usuario), (s:Space) "
+            "WHERE u.Usuario = $usuarioA and id(s) = $spaceB "
+            "MATCH (u) -[r:Interactua]->(s) "
+            "RETURN u, s, r"
+        )
+
+        result = session.run(
+            query, 
+            usuarioA = user,
+            spaceB = space
+        )
+
+        for record in result:
+            if record['u']['Usuario'] == user:
+                return True
+            
+    return False
+
+def createSpace(data):
+
+    with driver.session() as session:
+        # Creación del nodo
+        queryC = (
+            "MERGE (s:Space {Categoria: $categoria, Ubicacion:$ubicacion, HoraProgramada: $horaProgramada, Titulo: $titulo, Desc: $desc, Multimedia:$multimedia}) "
+            "RETURN s "
+            )
+        
+        resultC = session.run(
+            queryC,
+            categoria = data['categoria'], 
+            ubicacion = data['ubicacion'], 
+            horaProgramada = datetime.datetime.now().time(), 
+            titulo = data['titulo'], 
+            desc = data['desc'], 
+            multimedia = data['multimedia']
+        )
+
+        id = 0
+        for record in resultC:
+            id = record['s'].id
+
+        print('NID: ', id, type(id))
+        print('Usuario: ', data['usuario']['Usuario'])
+
+        queryCC = (
+            "MATCH (a), (b:Usuario) "
+            "WHERE ID(a) = $NID AND b.Usuario = $userA "
+            "MERGE (a)<-[r:Crea {Fecha:$fecha} ]-(b) "
+            "RETURN a, b "
+        )
+
+        session.run(
+            queryCC, 
+            NID = id,
+            userA = data['usuario']['Usuario'], 
+            fecha = datetime.datetime.now()
+
+        )
+
+def endSpace(spaceID):
+    with driver.session() as session:
+
+        hora = datetime.datetime.now()
+        
+        query = (
+            "MATCH (s:Space) "
+            "WHERE ID(s) = $SID "
+            "SET s.HoraFinalizada = $hf "
+            "RETURN s.HoraFinalizada "
+        )
+
+        result = session.run(
+            query, 
+            SID = spaceID, 
+            hf = hora
+        )
+
+def interactua(userUsuario, spaceID):
+    with driver.session() as session:
+
+        query = (
+                "MATCH (a), (b:Usuario) "
+                "WHERE ID(a) = $SID AND b.Usuario = $userA "
+                "MERGE (a)<-[r:Interactua {Interaccion:$interaccion, HoraIngreso:$horaIngreso}]-(b) "
+                "RETURN a, b "
+            )
+        
+        result = session.run(
+            query, 
+            SID = spaceID, 
+            userA = userUsuario, 
+            interaccion = True,
+            horaIngreso = datetime.datetime.now()
+        )
+
 
 # No olvides cerrar la conexión al finalizar
 driver.close()
